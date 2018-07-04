@@ -3539,8 +3539,7 @@ void CGame::Packet_Voice_Data(CVoiceDataPacket& Packet)
                     // Filter out ourselves and ignored
                     for (std::set<CPlayer*>::iterator iter = playerSendMap.begin(); iter != playerSendMap.end();)
                     {
-                        // if (*iter == pPlayer || (*iter)->IsPlayerIgnoringElement(pPlayer))
-                        if ((*iter)->IsPlayerIgnoringElement(pPlayer))
+                        if (*iter == pPlayer || (*iter)->IsPlayerIgnoringElement(pPlayer))
                             playerSendMap.erase(iter++);
                         else
                             ++iter;
@@ -3605,8 +3604,7 @@ void CGame::Packet_Voice_End(CVoiceEndPacket& Packet)
             // Filter out ourselves and ignored
             for (std::set<CPlayer*>::iterator iter = playerSendMap.begin(); iter != playerSendMap.end();)
             {
-                // if (*iter == pPlayer || (*iter)->IsPlayerIgnoringElement(pPlayer))
-                if ((*iter)->IsPlayerIgnoringElement(pPlayer))
+                if (*iter == pPlayer || (*iter)->IsPlayerIgnoringElement(pPlayer))
                     playerSendMap.erase(iter++);
                 else
                     ++iter;
