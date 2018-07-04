@@ -20,11 +20,11 @@ CVoiceRecorder::CVoiceRecorder(void)
     m_SampleRate = SAMPLERATE_WIDEBAND;
     m_Channel = CHANNEL_MONO;
 
-    m_pAudioStream = NULL;
+    m_pAudioStream = nullptr;
 
-    m_pOpusEncoderState = NULL;
+    m_pOpusEncoderState = nullptr;
 
-    m_pOutgoingBuffer = NULL;
+    m_pOutgoingBuffer = nullptr;
     m_iOpusOutgoingFrameSampleCount = 0;
     m_uiOutgoingReadIndex = 0;
     m_uiOutgoingWriteIndex = 0;
@@ -75,7 +75,7 @@ void CVoiceRecorder::Init(bool bEnabled, unsigned int uiServerSampleRate, unsign
     // Time of last send, this is used to limit sending
     m_ulTimeOfLastSend = 0;
 
-    m_pOpusEncoderState = opus_encoder_create(m_SampleRate, m_Channel, OPUS_APPLICATION_VOIP, NULL);
+    m_pOpusEncoderState = opus_encoder_create(m_SampleRate, m_Channel, OPUS_APPLICATION_VOIP, nullptr);
 
     // Initialize our outgoing buffer
     opus_encoder_ctl(m_pOpusEncoderState, OPUS_SET_COMPLEXITY(m_ucComplexity));
@@ -125,20 +125,20 @@ void CVoiceRecorder::DeInit(void)
         m_CS.Unlock();
         // Assumes now that BASSCallback is not executing in this context
 
-        m_pAudioStream = NULL;
+        m_pAudioStream = nullptr;
 
         m_iOpusOutgoingFrameSampleCount = 0;
 
         opus_encoder_destroy(m_pOpusEncoderState);
-        m_pOpusEncoderState = NULL;
+        m_pOpusEncoderState = nullptr;
 
         free(m_pOutgoingBuffer);
-        m_pOutgoingBuffer = NULL;
+        m_pOutgoingBuffer = nullptr;
 
         m_VoiceState = VOICESTATE_AWAITING_INPUT;
         m_SampleRate = SAMPLERATE_WIDEBAND;
 
-        m_pAudioStream = NULL;
+        m_pAudioStream = nullptr;
 
         m_uiOutgoingReadIndex = 0;
         m_uiOutgoingWriteIndex = 0;
