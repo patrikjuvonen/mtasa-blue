@@ -17,7 +17,7 @@
 #define VOICE_SAMPLE_SIZE               2
 */
 
-#include <speex/speex.h>
+#include <libopus/include/opus.h>
 #include <CClientPlayer.h>
 #include <../deathmatch/CVoiceRecorder.h>
 #include <bass.h>
@@ -83,9 +83,10 @@ private:
     CClientPlayer*  m_pPlayer;
     CVoiceRecorder* m_pVoiceRecorder;
     unsigned int    m_SampleRate;
+    eChannel        m_Channel;
     HSTREAM         m_pBassPlaybackStream;
-    void*           m_pSpeexDecoderState;
-    int             m_iSpeexIncomingFrameSampleCount;
+    OpusDecoder*    m_pOpusDecoderState;
+    int             m_iOpusIncomingFrameSampleCount;
     float           m_fVolume;
     float           m_fVolumeScale;
 

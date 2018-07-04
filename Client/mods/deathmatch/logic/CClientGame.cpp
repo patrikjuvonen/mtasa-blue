@@ -6191,11 +6191,11 @@ bool CClientGame::VerifySADataFiles(int iEnableClientChecks)
     return true;
 }
 
-void CClientGame::InitVoice(bool bEnabled, unsigned int uiServerSampleRate, unsigned char ucQuality, unsigned int uiBitrate)
+void CClientGame::InitVoice(bool bEnabled, unsigned int uiServerSampleRate, unsigned char ucComplexity, unsigned int uiBitrate)
 {
     if (m_pVoiceRecorder)
     {
-        m_pVoiceRecorder->Init(bEnabled, uiServerSampleRate, ucQuality, uiBitrate);
+        m_pVoiceRecorder->Init(bEnabled, uiServerSampleRate, ucComplexity, uiBitrate);
     }
 }
 
@@ -6513,7 +6513,7 @@ void CClientGame::OutputServerInfo(void)
     {
         SString strVoice;
         if (m_pVoiceRecorder && m_pVoiceRecorder->IsEnabled())
-            strVoice += SString("Enabled - Sample rate:%d  Quality:%d", m_pVoiceRecorder->GetSampleRate(), m_pVoiceRecorder->GetSampleQuality());
+            strVoice += SString("Enabled - Sample rate: %d  Complexity: %d", m_pVoiceRecorder->GetSampleRate(), m_pVoiceRecorder->GetComputationalComplexity());
         else
             strVoice += "Disabled";
 

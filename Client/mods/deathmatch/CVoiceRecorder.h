@@ -22,9 +22,8 @@
 // Uncomment this to hear yourself speak locally (Voice is still encoded & decoded to simulate network transmission)
 #define VOICE_DEBUG_LOCAL_PLAYBACK
 
-#include <speex/speex.h>
-#include <speex/speex_preprocess.h>
-#include <portaudio/portaudio.h>
+#include <libopus/include/opus.h>
+#include <bass/bass.h>
 
 enum eVoiceState
 {
@@ -36,15 +35,25 @@ enum eVoiceState
 enum eSampleRate
 {
     SAMPLERATE_NARROWBAND = 8000,
+    SAMPLERATE_MEDIUMBAND = 12000,
     SAMPLERATE_WIDEBAND = 16000,
-    SAMPLERATE_ULTRAWIDEBAND = 32000
+    SAMPLERATE_SUPERWIDEBAND = 24000,
+    SAMPLERATE_FULLBAND = 48000
 };
 
 enum eServerSampleRate
 {
     SERVERSAMPLERATE_NARROWBAND = 0,
+    SERVERSAMPLERATE_MEDIUMBAND,
     SERVERSAMPLERATE_WIDEBAND,
-    SERVERSAMPLERATE_ULTRAWIDEBAND
+    SERVERSAMPLERATE_SUPERWIDEBAND,
+    SERVERSAMPLERATE_FULLBAND
+};
+
+enum eChannel
+{
+    CHANNEL_MONO = 1,
+    CHANNEL_STEREO = 2
 };
 
 class CVoiceRecorder
@@ -53,7 +62,7 @@ public:
     CVoiceRecorder(void);
     ~CVoiceRecorder(void);
 
-    void Init(bool bEnabled, unsigned int uiServerSampleRate, unsigned char ucQuality, unsigned int uiBitrate);
+    void Init(bool bEnabled, unsigned int uiServerSampleRate, unsigned char ucComplexity, unsigned int uiBitrate);
 
     bool IsEnabled(void) { return m_bEnabled; }
 
@@ -62,38 +71,39 @@ public:
     void UpdatePTTState(unsigned int uiState);
 
     unsigned int  GetSampleRate(void) { return m_SampleRate; }
-    unsigned char GetSampleQuality(void) { return m_ucQuality; }
+    unsigned char GetComputationalComplexity(void) { return m_ucComplexity; }
 
-    const SpeexMode* getSpeexModeFromSampleRate(void);
+    const int     getOpusBandwidthFromSampleRate(void);
 
 private:
     void DeInit(void);
-    void SendFrame(const void* inputBuffer);
 
-    static int PACallback(const void* inputBuffer, void* outputBuffer, unsigned long frameCount, const PaStreamCallbackTimeInfo* timeInfo,
-                          PaStreamCallbackFlags statusFlags, void* userData);
+    void SendFrame(const void* inputBuffer, DWORD length);
+
+    static int __stdcall BASSCallback(HRECORD handle, const void *buffer, DWORD length, void *user);
 
     bool        m_bEnabled;
     eVoiceState m_VoiceState;
 
-    PaStream* m_pAudioStream;
+    HSTREAM* m_pAudioStream;
 
-    void*                 m_pSpeexEncoderState;
-    SpeexPreprocessState* m_pSpeexPreprocState;
+    OpusEncoder* m_pOpusEncoderState;
 
     char*        m_pOutgoingBuffer;
-    int          m_iSpeexOutgoingFrameSampleCount;
+    int          m_iOpusOutgoingFrameSampleCount;
     unsigned int m_uiOutgoingReadIndex;
     unsigned int m_uiOutgoingWriteIndex;
     bool         m_bIsSendingVoiceData;
 
     unsigned long m_ulTimeOfLastSend;
 
-    unsigned int m_uiBufferSizeBytes;
+    unsigned int m_uiAudioBufferSize = 2048 * FRAME_OUTGOING_BUFFER_COUNT;
     eSampleRate  convertServerSampleRate(unsigned int uiServerSampleRate);
 
     eSampleRate   m_SampleRate;
-    unsigned char m_ucQuality;
+    unsigned char m_ucComplexity;
+
+    eChannel m_Channel;
 
     std::list<SString> m_EventQueue;
     CCriticalSection   m_CS;

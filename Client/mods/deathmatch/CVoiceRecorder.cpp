@@ -2,8 +2,8 @@
  *
  *  PROJECT:     Multi Theft Auto v1.0
  *  LICENSE:     See LICENSE in the top level directory
- *  FILE:        mods/deathmatch/logic/CVoiceRecorderRecorder.cpp
- *  PURPOSE:     Transfer box GUI
+ *  FILE:        mods/deathmatch/logic/CVoiceRecorder.cpp
+ *  PURPOSE:     Recording voice
  *
  *  Multi Theft Auto is available from http://www.multitheftauto.com/
  *
@@ -18,20 +18,19 @@ CVoiceRecorder::CVoiceRecorder(void)
 
     m_VoiceState = VOICESTATE_AWAITING_INPUT;
     m_SampleRate = SAMPLERATE_WIDEBAND;
+    m_Channel = CHANNEL_MONO;
 
     m_pAudioStream = NULL;
 
-    m_pSpeexEncoderState = NULL;
+    m_pOpusEncoderState = NULL;
 
     m_pOutgoingBuffer = NULL;
-    m_iSpeexOutgoingFrameSampleCount = 0;
+    m_iOpusOutgoingFrameSampleCount = 0;
     m_uiOutgoingReadIndex = 0;
     m_uiOutgoingWriteIndex = 0;
     m_bIsSendingVoiceData = false;
 
     m_ulTimeOfLastSend = 0;
-
-    m_uiBufferSizeBytes = 0;
 }
 
 CVoiceRecorder::~CVoiceRecorder(void)
@@ -39,22 +38,25 @@ CVoiceRecorder::~CVoiceRecorder(void)
     DeInit();
 }
 
-// TODO: Replace this with BASS
-int CVoiceRecorder::PACallback(const void* inputBuffer, void* outputBuffer, unsigned long frameCount, const PaStreamCallbackTimeInfo* timeInfo,
-                               PaStreamCallbackFlags statusFlags, void* userData)
+int CVoiceRecorder::BASSCallback(HRECORD handle, const void *buffer, DWORD length, void *user)
 {
-    // This assumes that PACallback will only be called when userData is a valid CVoiceRecorder pointer
-    CVoiceRecorder* pVoiceRecorder = static_cast<CVoiceRecorder*>(userData);
+    // This assumes that BASSCallback will only be called when user is a valid CVoiceRecorder pointer
+    CVoiceRecorder* pVoiceRecorder = static_cast<CVoiceRecorder*>(user);
     pVoiceRecorder->m_CS.Lock();
 
+    g_pCore->GetConsole()->Print("BASSCallback received");
+
     if (pVoiceRecorder->IsEnabled())
-        pVoiceRecorder->SendFrame(inputBuffer);
+    {
+        g_pCore->GetConsole()->Print("Calling CVoiceRecorder::SendFrame...");
+        pVoiceRecorder->SendFrame(buffer, length);
+    }
 
     pVoiceRecorder->m_CS.Unlock();
     return 0;
 }
 
-void CVoiceRecorder::Init(bool bEnabled, unsigned int uiServerSampleRate, unsigned char ucQuality, unsigned int uiBitrate)
+void CVoiceRecorder::Init(bool bEnabled, unsigned int uiServerSampleRate, unsigned char ucComplexity, unsigned int uiBitrate)
 {
     m_bEnabled = bEnabled;
 
@@ -63,67 +65,49 @@ void CVoiceRecorder::Init(bool bEnabled, unsigned int uiServerSampleRate, unsign
 
     m_CS.Lock();
 
-    // Convert the sample rate we received from the server (0-2) into an actual sample rate
+    // Convert the sample rate we received from the server (0-4) into an actual sample rate
     m_SampleRate = convertServerSampleRate(uiServerSampleRate);
-    m_ucQuality = ucQuality;
+    m_ucComplexity = ucComplexity;
 
     // State is awaiting input
     m_VoiceState = VOICESTATE_AWAITING_INPUT;
 
-    // Calculate how many frames we are storing and then the buffer size in bytes
-    unsigned int iFramesPerBuffer = (2048 / (32000 / m_SampleRate));
-    m_uiBufferSizeBytes = iFramesPerBuffer * sizeof(short);
-
     // Time of last send, this is used to limit sending
     m_ulTimeOfLastSend = 0;
 
-    // Get the relevant speex mode for the servers sample rate
-    const SpeexMode* speexMode = getSpeexModeFromSampleRate();
-    m_pSpeexEncoderState = speex_encoder_init(speexMode);
-
-    Pa_Initialize();
-
-    int count = Pa_GetHostApiCount();
-
-    PaStreamParameters inputDevice;
-    inputDevice.channelCount = 1;
-    inputDevice.device = Pa_GetDefaultInputDevice();
-    inputDevice.sampleFormat = paInt16;
-    inputDevice.hostApiSpecificStreamInfo = NULL;
-    inputDevice.suggestedLatency = 0;
-
-    Pa_OpenStream(&m_pAudioStream, &inputDevice, NULL, m_SampleRate, iFramesPerBuffer, paNoFlag, PACallback, this);
-
-    Pa_StartStream(m_pAudioStream);
+    m_pOpusEncoderState = opus_encoder_create(m_SampleRate, m_Channel, OPUS_APPLICATION_VOIP, NULL);
 
     // Initialize our outgoing buffer
-    speex_encoder_ctl(m_pSpeexEncoderState, SPEEX_GET_FRAME_SIZE, &m_iSpeexOutgoingFrameSampleCount);
-    speex_encoder_ctl(m_pSpeexEncoderState, SPEEX_SET_QUALITY, &m_ucQuality);
-    int iBitRate = (int)uiBitrate;
-    if (iBitRate)
-        speex_encoder_ctl(m_pSpeexEncoderState, SPEEX_SET_BITRATE, &iBitRate);
+    opus_encoder_ctl(m_pOpusEncoderState, OPUS_SET_COMPLEXITY(m_ucComplexity));
+    opus_encoder_ctl(m_pOpusEncoderState, OPUS_SET_SIGNAL(OPUS_SIGNAL_VOICE));
+    opus_encoder_ctl(m_pOpusEncoderState, OPUS_SET_DTX(1));
 
-    m_pOutgoingBuffer = (char*)malloc(m_uiBufferSizeBytes * FRAME_OUTGOING_BUFFER_COUNT);
+    int iBitrate = (int)uiBitrate;
+    if (iBitrate)
+    {
+        opus_encoder_ctl(m_pOpusEncoderState, OPUS_SET_BITRATE(iBitrate));
+        g_pCore->GetConsole()->Printf("set to %d", iBitrate);
+    }
+    else
+        opus_encoder_ctl(m_pOpusEncoderState, OPUS_GET_BITRATE(&iBitrate));
+
+    opus_encoder_ctl(m_pOpusEncoderState, OPUS_GET_EXPERT_FRAME_DURATION(&m_iOpusOutgoingFrameSampleCount));
+
+    int iSamplingRate = (int)m_SampleRate;
+    if (iSamplingRate)
+        opus_encoder_ctl(m_pOpusEncoderState, OPUS_GET_SAMPLE_RATE(&iSamplingRate));
+
+    // Initialize recording with the default device
+    BASS_RecordInit(-1);
+
+    // Start recording
+    BASS_RecordStart(m_SampleRate, m_Channel, BASS_SAMPLE_FLOAT, &BASSCallback, this);
+
+    m_pOutgoingBuffer = (char*)malloc(2048 * FRAME_OUTGOING_BUFFER_COUNT);
     m_uiOutgoingReadIndex = 0;
     m_uiOutgoingWriteIndex = 0;
 
-    // Initialise the speex preprocessor
-    int iSamplingRate;
-    speex_encoder_ctl(m_pSpeexEncoderState, SPEEX_GET_SAMPLING_RATE, &iSamplingRate);
-    m_pSpeexPreprocState = speex_preprocess_state_init(m_iSpeexOutgoingFrameSampleCount, iSamplingRate);
-
-    // Set our preprocessor parameters
-    int iEnable = 1;
-    int iDisable = 0;
-    speex_preprocess_ctl(m_pSpeexPreprocState, SPEEX_PREPROCESS_SET_AGC, &iEnable);
-    speex_preprocess_ctl(m_pSpeexPreprocState, SPEEX_PREPROCESS_SET_DENOISE, &iEnable);
-    speex_preprocess_ctl(m_pSpeexPreprocState, SPEEX_PREPROCESS_SET_DEREVERB, &iEnable);
-    speex_preprocess_ctl(m_pSpeexPreprocState, SPEEX_PREPROCESS_SET_VAD, &iDisable);
-    speex_encoder_ctl(m_pSpeexEncoderState, SPEEX_SET_DTX, &iEnable);
-
-    speex_encoder_ctl(m_pSpeexEncoderState, SPEEX_GET_BITRATE, &iBitRate);
-
-    g_pCore->GetConsole()->Printf("Server Voice Chat Quality [%i];  Sample Rate: [%iHz]; Bitrate [%ibps]", m_ucQuality, iSamplingRate, iBitRate);
+    g_pCore->GetConsole()->Printf("Server Voice Chat Complexity [%i]; Sample Rate: [%iHz]; Bitrate [%ibps]", m_ucComplexity, iSamplingRate, iBitrate);
 
     m_CS.Unlock();
 }
@@ -134,23 +118,19 @@ void CVoiceRecorder::DeInit(void)
     {
         m_bEnabled = false;
 
-        Pa_CloseStream(m_pAudioStream);
-        Pa_Terminate();
+        BASS_RecordFree();
 
-        // Assumes now that PACallback will not be called in this context
+        // Assumes now that BASSCallback will not be called in this context
         m_CS.Lock();
         m_CS.Unlock();
-        // Assumes now that PACallback is not executing in this context
+        // Assumes now that BASSCallback is not executing in this context
 
         m_pAudioStream = NULL;
 
-        m_iSpeexOutgoingFrameSampleCount = 0;
+        m_iOpusOutgoingFrameSampleCount = 0;
 
-        speex_encoder_destroy(m_pSpeexEncoderState);
-        m_pSpeexEncoderState = NULL;
-
-        speex_preprocess_state_destroy(m_pSpeexPreprocState);
-        m_pSpeexPreprocState = NULL;
+        opus_encoder_destroy(m_pOpusEncoderState);
+        m_pOpusEncoderState = NULL;
 
         free(m_pOutgoingBuffer);
         m_pOutgoingBuffer = NULL;
@@ -160,27 +140,29 @@ void CVoiceRecorder::DeInit(void)
 
         m_pAudioStream = NULL;
 
-        m_iSpeexOutgoingFrameSampleCount = 0;
         m_uiOutgoingReadIndex = 0;
         m_uiOutgoingWriteIndex = 0;
         m_bIsSendingVoiceData = false;
         m_ulTimeOfLastSend = 0;
-        m_uiBufferSizeBytes = 0;
     }
 }
 
-const SpeexMode* CVoiceRecorder::getSpeexModeFromSampleRate(void)
+const int CVoiceRecorder::getOpusBandwidthFromSampleRate(void)
 {
     switch (m_SampleRate)
     {
         case SAMPLERATE_NARROWBAND:
-            return &speex_nb_mode;
+            return opus_encoder_ctl(m_pOpusEncoderState, OPUS_BANDWIDTH_NARROWBAND);
+        case SAMPLERATE_MEDIUMBAND:
+            return opus_encoder_ctl(m_pOpusEncoderState, OPUS_BANDWIDTH_MEDIUMBAND);
         case SAMPLERATE_WIDEBAND:
-            return &speex_wb_mode;
-        case SAMPLERATE_ULTRAWIDEBAND:
-            return &speex_uwb_mode;
+            return opus_encoder_ctl(m_pOpusEncoderState, OPUS_BANDWIDTH_WIDEBAND);
+        case SAMPLERATE_SUPERWIDEBAND:
+            return opus_encoder_ctl(m_pOpusEncoderState, OPUS_BANDWIDTH_SUPERWIDEBAND);
+        case SAMPLERATE_FULLBAND:
+            return opus_encoder_ctl(m_pOpusEncoderState, OPUS_BANDWIDTH_FULLBAND);
     }
-    return &speex_wb_mode;
+    return opus_encoder_ctl(m_pOpusEncoderState, OPUS_BANDWIDTH_WIDEBAND);
 }
 
 eSampleRate CVoiceRecorder::convertServerSampleRate(unsigned int uiServerSampleRate)
@@ -189,10 +171,14 @@ eSampleRate CVoiceRecorder::convertServerSampleRate(unsigned int uiServerSampleR
     {
         case SERVERSAMPLERATE_NARROWBAND:
             return SAMPLERATE_NARROWBAND;
+        case SERVERSAMPLERATE_MEDIUMBAND:
+            return SAMPLERATE_MEDIUMBAND;
         case SERVERSAMPLERATE_WIDEBAND:
             return SAMPLERATE_WIDEBAND;
-        case SERVERSAMPLERATE_ULTRAWIDEBAND:
-            return SAMPLERATE_ULTRAWIDEBAND;
+        case SERVERSAMPLERATE_SUPERWIDEBAND:
+            return SAMPLERATE_SUPERWIDEBAND;
+        case SERVERSAMPLERATE_FULLBAND:
+            return SAMPLERATE_FULLBAND;
     }
     return SAMPLERATE_WIDEBAND;
 }
@@ -247,9 +233,8 @@ void CVoiceRecorder::DoPulse(void)
 {
     m_CS.Lock();
 
-    char*        pInputBuffer;
-    char         bufTempOutput[2048];
-    unsigned int uiTotalBufferSize = m_uiBufferSizeBytes * FRAME_OUTGOING_BUFFER_COUNT;
+    char* pInputBuffer;
+    char  bufTempOutput[2048];
 
     // Only send every 100 ms
     if (CClientTime::GetTime() - m_ulTimeOfLastSend > 100 && m_VoiceState != VOICESTATE_AWAITING_INPUT)
@@ -260,43 +245,59 @@ void CVoiceRecorder::DoPulse(void)
         if (m_uiOutgoingWriteIndex >= m_uiOutgoingReadIndex)
             uiBytesAvailable = m_uiOutgoingWriteIndex - m_uiOutgoingReadIndex;
         else
-            uiBytesAvailable = m_uiOutgoingWriteIndex + (uiTotalBufferSize - m_uiOutgoingReadIndex);
+            uiBytesAvailable = m_uiOutgoingWriteIndex + (m_uiAudioBufferSize - m_uiOutgoingReadIndex);
 
-        unsigned int uiSpeexBlockSize = m_iSpeexOutgoingFrameSampleCount * VOICE_SAMPLE_SIZE;
+        unsigned int uiOpusBlockSize = m_iOpusOutgoingFrameSampleCount * m_Channel * VOICE_SAMPLE_SIZE;
 
-        unsigned int uiSpeexFramesAvailable = uiBytesAvailable / uiSpeexBlockSize;
+        unsigned int uiOpusFramesAvailable = uiBytesAvailable / uiOpusBlockSize;
 
-        if (uiSpeexFramesAvailable > 0)
+        g_pCore->GetConsole()->Printf("CVoiceRecorder::DoPulse - tick: %d, \
+m_iOpusOutgoingFrameSampleCount: %d, \
+m_uiOutgoingWriteIndex: %d, \
+m_uiOutgoingReadIndex: %d, \
+m_uiAudioBufferSize: %d, \
+m_Channel: %d, \
+uiBytesAvailable: %d, \
+uiOpusBlockSize: %d, \
+uiOpusFramesAvailable: %d, \
+VOICE_SAMPLE_SIZE: %d",
+            CClientTime::GetTime(),
+            m_iOpusOutgoingFrameSampleCount,
+            m_uiOutgoingWriteIndex,
+            m_uiOutgoingReadIndex,
+            m_uiAudioBufferSize,
+            m_Channel,
+            uiBytesAvailable,
+            uiOpusBlockSize,
+            uiOpusFramesAvailable,
+            VOICE_SAMPLE_SIZE
+        );
+
+        if (uiOpusFramesAvailable > 0)
         {
-            SpeexBits speexBits;
-            speex_bits_init(&speexBits);
+            unsigned char* ucEncodedOutput = new unsigned char[2048];
 
-            while (uiSpeexFramesAvailable-- > 0)
+            while (uiOpusFramesAvailable-- > 0)
             {
-                speex_bits_reset(&speexBits);
-
+                ucEncodedOutput = nullptr;
+                
                 // Does the input data wrap around the buffer? Copy it first then
-                if (m_uiOutgoingReadIndex + uiSpeexBlockSize >= uiTotalBufferSize)
+                if (m_uiOutgoingReadIndex + uiOpusBlockSize >= m_uiAudioBufferSize)
                 {
                     unsigned t;
-                    for (t = 0; t < uiSpeexBlockSize; t++)
-                        bufTempOutput[t] = m_pOutgoingBuffer[t % uiTotalBufferSize];
+                    for (t = 0; t < uiOpusBlockSize; t++)
+                        bufTempOutput[t] = m_pOutgoingBuffer[t % m_uiAudioBufferSize];
                     pInputBuffer = bufTempOutput;
                 }
                 else
                     pInputBuffer = m_pOutgoingBuffer + m_uiOutgoingReadIndex;
 
-                // Run through our preprocessor (noise/echo cancelation)
-                speex_preprocess_run(m_pSpeexPreprocState, (spx_int16_t*)pInputBuffer);
-
-                // Encode our audio stream with speex
-                speex_encode_int(m_pSpeexEncoderState, (spx_int16_t*)pInputBuffer, &speexBits);
-
-                m_uiOutgoingReadIndex = (m_uiOutgoingReadIndex + uiSpeexBlockSize) % uiTotalBufferSize;
-
                 m_bIsSendingVoiceData = true;
 
-                unsigned int uiBytesWritten = speex_bits_write(&speexBits, bufTempOutput, 2048);
+                // Encode our audio stream with opus
+                opus_int32 uiBytesWritten = opus_encode_float(m_pOpusEncoderState, (float*)pInputBuffer, uiOpusBlockSize, ucEncodedOutput, 2048);
+
+                m_uiOutgoingReadIndex = (m_uiOutgoingReadIndex + uiOpusBlockSize) % m_uiAudioBufferSize;
 
                 g_pClientGame->GetLocalPlayer()->GetVoice()->DecodeAndBuffer(bufTempOutput, uiBytesWritten);
 
@@ -316,7 +317,7 @@ void CVoiceRecorder::DoPulse(void)
                     }
                 }
             }
-            speex_bits_destroy(&speexBits);
+            free(ucEncodedOutput);
 
             m_ulTimeOfLastSend = CClientTime::GetTime();
         }
@@ -342,12 +343,16 @@ void CVoiceRecorder::DoPulse(void)
 }
 
 // Called from other thread. Critical section is already locked.
-void CVoiceRecorder::SendFrame(const void* inputBuffer)
+void CVoiceRecorder::SendFrame(const void* inputBuffer, DWORD uiLength)
 {
+    g_pCore->GetConsole()->Print("Call to CVoiceRecorder::SendFrame received...");
+
     if (m_VoiceState != VOICESTATE_AWAITING_INPUT && m_bEnabled && inputBuffer)
     {
+        g_pCore->GetConsole()->Print("CVoiceRecorder::SendFrame is now going to do some math...");
+        
         unsigned int remainingBufferSize = 0;
-        unsigned int uiTotalBufferSize = m_uiBufferSizeBytes * FRAME_OUTGOING_BUFFER_COUNT;
+        unsigned int uiTotalBufferSize = uiLength * FRAME_OUTGOING_BUFFER_COUNT;
 
         // Calculate how much of our buffer is remaining
         if (m_uiOutgoingWriteIndex >= m_uiOutgoingReadIndex)
@@ -356,17 +361,89 @@ void CVoiceRecorder::SendFrame(const void* inputBuffer)
             remainingBufferSize = m_uiOutgoingReadIndex - m_uiOutgoingWriteIndex;
 
         // Copy from our input buffer to our outgoing buffer at write index
-        memcpy(m_pOutgoingBuffer + m_uiOutgoingWriteIndex, inputBuffer, m_uiBufferSizeBytes);
+        memcpy(m_pOutgoingBuffer + m_uiOutgoingWriteIndex, inputBuffer, uiLength);
+
+        g_pCore->GetConsole()->Printf("CVoiceRecorder::SendFrame [1] - tick: %d, \
+remainingBufferSize: %d, \
+uiLength: %d, \
+FRAME_OUTGOING_BUFFER_COUNT: %d, \
+uiTotalBufferSize: %d, \
+remainingBufferSize: %d, \
+m_uiOutgoingWriteIndex: %d, \
+m_uiOutgoingReadIndex: %d",
+CClientTime::GetTime(),
+remainingBufferSize,
+uiLength,
+FRAME_OUTGOING_BUFFER_COUNT,
+uiTotalBufferSize,
+remainingBufferSize,
+m_uiOutgoingWriteIndex,
+m_uiOutgoingReadIndex
+);
 
         // Re-align our write index
-        m_uiOutgoingWriteIndex += m_uiBufferSizeBytes;
+        m_uiOutgoingWriteIndex += uiLength;
+
+        g_pCore->GetConsole()->Printf("CVoiceRecorder::SendFrame [2] - tick: %d, \
+remainingBufferSize: %d, \
+uiLength: %d, \
+FRAME_OUTGOING_BUFFER_COUNT: %d, \
+uiTotalBufferSize: %d, \
+remainingBufferSize: %d, \
+m_uiOutgoingWriteIndex: %d, \
+m_uiOutgoingReadIndex: %d",
+CClientTime::GetTime(),
+remainingBufferSize,
+uiLength,
+FRAME_OUTGOING_BUFFER_COUNT,
+uiTotalBufferSize,
+remainingBufferSize,
+m_uiOutgoingWriteIndex,
+m_uiOutgoingReadIndex
+);
 
         // If we have reached the end of the buffer, go back to the start
         if (m_uiOutgoingWriteIndex == uiTotalBufferSize)
             m_uiOutgoingWriteIndex = 0;
 
+        g_pCore->GetConsole()->Printf("CVoiceRecorder::SendFrame [3] - tick: %d, \
+remainingBufferSize: %d, \
+uiLength: %d, \
+FRAME_OUTGOING_BUFFER_COUNT: %d, \
+uiTotalBufferSize: %d, \
+remainingBufferSize: %d, \
+m_uiOutgoingWriteIndex: %d, \
+m_uiOutgoingReadIndex: %d",
+CClientTime::GetTime(),
+remainingBufferSize,
+uiLength,
+FRAME_OUTGOING_BUFFER_COUNT,
+uiTotalBufferSize,
+remainingBufferSize,
+m_uiOutgoingWriteIndex,
+m_uiOutgoingReadIndex
+);
+
         // Wrap around the buffer?
-        if (m_uiBufferSizeBytes >= remainingBufferSize)
-            m_uiOutgoingReadIndex = (m_uiOutgoingReadIndex + m_iSpeexOutgoingFrameSampleCount * VOICE_SAMPLE_SIZE) % uiTotalBufferSize;
+        if (uiLength >= remainingBufferSize)
+            m_uiOutgoingReadIndex = (m_uiOutgoingReadIndex + m_iOpusOutgoingFrameSampleCount * m_Channel * VOICE_SAMPLE_SIZE) % uiTotalBufferSize;
+
+        g_pCore->GetConsole()->Printf("CVoiceRecorder::SendFrame [4] - tick: %d, \
+remainingBufferSize: %d, \
+uiLength: %d, \
+FRAME_OUTGOING_BUFFER_COUNT: %d, \
+uiTotalBufferSize: %d, \
+remainingBufferSize: %d, \
+m_uiOutgoingWriteIndex: %d, \
+m_uiOutgoingReadIndex: %d",
+CClientTime::GetTime(),
+remainingBufferSize,
+uiLength,
+FRAME_OUTGOING_BUFFER_COUNT,
+uiTotalBufferSize,
+remainingBufferSize,
+m_uiOutgoingWriteIndex,
+m_uiOutgoingReadIndex
+);
     }
 }

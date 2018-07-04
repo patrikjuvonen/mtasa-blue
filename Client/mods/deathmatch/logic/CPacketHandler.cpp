@@ -5017,6 +5017,7 @@ void CPacketHandler::Packet_VoiceData(NetBitStreamInterface& bitStream)
         CClientPlayer* pPlayer = g_pClientGame->m_pPlayerManager->Get(PlayerID);
         if (pPlayer && bitStream.Read(usPacketSize))
         {
+            /*
             char* pBuf = new char[usPacketSize];
             if (bitStream.Read(pBuf, usPacketSize))
             {
@@ -5025,6 +5026,7 @@ void CPacketHandler::Packet_VoiceData(NetBitStreamInterface& bitStream)
                     pPlayer->GetVoice()->DecodeAndBuffer(pBuf, usPacketSize);
                 }
             }
+            */
         }
     }
 }

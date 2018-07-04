@@ -123,13 +123,13 @@ workspace "MTASA"
 		include "vendor/cegui-0.4.0-custom"
 		
 		group "Vendor"
-		include "vendor/portaudio"
 		include "vendor/cef3"
 		include "vendor/jpeg-9b"
 		include "vendor/libpng"
 		include "vendor/tinygettext"
 		include "vendor/pthreads"
-		include "vendor/libspeex"
+		include "vendor/libopus"
+		include "vendor/bass"
 	end
 	
 	filter {}
