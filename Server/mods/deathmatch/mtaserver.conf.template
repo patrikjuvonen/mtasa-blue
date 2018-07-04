@@ -203,7 +203,7 @@ R"=====(
     <voice_samplerate>2</voice_samplerate>
     
     <!-- This parameter specifies the voice quality for voice chat. 'voice' parameter must be set to 1 for this to be effective.
-         Higher settings use more CPU processing power but increase the the overall quality of voice chat
+         Higher settings use more CPU processing power but increase the overall quality of voice chat
          Available range: 0 to 10.  Default - 8 -->
     <voice_complexity>8</voice_complexity>
 
