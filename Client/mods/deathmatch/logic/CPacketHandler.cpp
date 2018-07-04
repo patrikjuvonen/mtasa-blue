@@ -372,14 +372,14 @@ void CPacketHandler::Packet_ServerJoined(NetBitStreamInterface& bitStream)
     SIntegerSync<unsigned char, 2> sampleRate;
     bitStream.Read(&sampleRate);
 
-    // Get the current voice for the voice module
-    SIntegerSync<unsigned char, 4> quality;
-    bitStream.Read(&quality);
+    // Get the current computational complexity for the voice module
+    SIntegerSync<unsigned char, 4> complexity;
+    bitStream.Read(&complexity);
 
     unsigned int iBitrate;
     bitStream.ReadCompressed(iBitrate);
 
-    g_pClientGame->InitVoice(bVoiceEnabled, (unsigned int)sampleRate, quality, iBitrate);
+    g_pClientGame->InitVoice(bVoiceEnabled, (unsigned int)sampleRate, complexity, iBitrate);
 
     // Get fakelag command enabled
     if (bitStream.Version() >= 0x06A)
@@ -5017,7 +5017,6 @@ void CPacketHandler::Packet_VoiceData(NetBitStreamInterface& bitStream)
         CClientPlayer* pPlayer = g_pClientGame->m_pPlayerManager->Get(PlayerID);
         if (pPlayer && bitStream.Read(usPacketSize))
         {
-            /*
             char* pBuf = new char[usPacketSize];
             if (bitStream.Read(pBuf, usPacketSize))
             {
@@ -5026,7 +5025,6 @@ void CPacketHandler::Packet_VoiceData(NetBitStreamInterface& bitStream)
                     pPlayer->GetVoice()->DecodeAndBuffer(pBuf, usPacketSize);
                 }
             }
-            */
         }
     }
 }
