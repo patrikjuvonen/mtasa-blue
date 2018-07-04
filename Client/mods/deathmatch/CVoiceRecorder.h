@@ -12,15 +12,10 @@
 #ifndef __CVOICE_H
 #define __CVOICE_H
 
-#define VOICE_BUFFER_LENGTH             200000
-#define VOICE_FREQUENCY                 44100
-#define VOICE_SAMPLE_SIZE               2
+#define VOICE_SAMPLE_SIZE 2
 
 #define FRAME_OUTGOING_BUFFER_COUNT 100
 #define FRAME_INCOMING_BUFFER_COUNT 100
-
-// Uncomment this to hear yourself speak locally (Voice is still encoded & decoded to simulate network transmission)
-#define VOICE_DEBUG_LOCAL_PLAYBACK
 
 #include <libopus/include/opus.h>
 #include <bass/bass.h>
