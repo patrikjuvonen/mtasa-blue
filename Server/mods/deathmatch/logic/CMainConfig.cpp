@@ -356,7 +356,7 @@ bool CMainConfig::Load(void)
 
     // Grab the Sample Rate for Voice
     iTemp = m_uiVoiceSampleRate;
-    iResult = GetInteger(m_pRootNode, "voice_samplerate", iTemp, 0, 2);
+    iResult = GetInteger(m_pRootNode, "voice_samplerate", iTemp, 0, 4);
     m_uiVoiceSampleRate = Clamp(0, iTemp, 4);
 
     // Grab the Computational Complexity for Voice
