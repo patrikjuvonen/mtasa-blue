@@ -20,7 +20,7 @@ CVoiceRecorder::CVoiceRecorder(void)
     m_SampleRate = SAMPLERATE_WIDEBAND;
     m_Channel = CHANNEL_MONO;
 
-    m_pAudioStream = nullptr;
+    m_pAudioStream = NULL;
 
     m_pOpusEncoderState = nullptr;
 
@@ -44,23 +44,18 @@ int CVoiceRecorder::BASSCallback(HRECORD handle, const void *buffer, DWORD lengt
     CVoiceRecorder* pVoiceRecorder = static_cast<CVoiceRecorder*>(user);
     pVoiceRecorder->m_CS.Lock();
 
-    g_pCore->GetConsole()->Print("BASSCallback received");
-
     if (pVoiceRecorder->IsEnabled())
-    {
-        g_pCore->GetConsole()->Print("Calling CVoiceRecorder::SendFrame...");
         pVoiceRecorder->SendFrame(buffer, length);
-    }
 
     pVoiceRecorder->m_CS.Unlock();
-    return 0;
+    return 1;
 }
 
 void CVoiceRecorder::Init(bool bEnabled, unsigned int uiServerSampleRate, unsigned char ucComplexity, unsigned int uiBitrate)
 {
     m_bEnabled = bEnabled;
 
-    if (!bEnabled)            // If we aren't enabled, don't bother continuing
+    if (!bEnabled) // If we aren't enabled, don't bother continuing
         return;
 
     m_CS.Lock();
@@ -84,10 +79,7 @@ void CVoiceRecorder::Init(bool bEnabled, unsigned int uiServerSampleRate, unsign
 
     int iBitrate = (int)uiBitrate;
     if (iBitrate)
-    {
         opus_encoder_ctl(m_pOpusEncoderState, OPUS_SET_BITRATE(iBitrate));
-        g_pCore->GetConsole()->Printf("set to %d", iBitrate);
-    }
     else
         opus_encoder_ctl(m_pOpusEncoderState, OPUS_GET_BITRATE(&iBitrate));
 
@@ -100,8 +92,52 @@ void CVoiceRecorder::Init(bool bEnabled, unsigned int uiServerSampleRate, unsign
     // Initialize recording with the default device
     BASS_RecordInit(-1);
 
-    // Start recording
-    BASS_RecordStart(m_SampleRate, m_Channel, BASS_SAMPLE_FLOAT, &BASSCallback, this);
+#ifdef MTA_DEBUG
+    BASS_DEVICEINFO info;
+    BASS_RecordGetDeviceInfo(BASS_RecordGetDevice(), &info);
+
+    char* type = "Unknown";
+    switch (info.flags&BASS_DEVICE_TYPE_MASK)
+    {
+        case BASS_DEVICE_TYPE_DIGITAL:
+            type = "Digital";
+            break;
+        case BASS_DEVICE_TYPE_DISPLAYPORT:
+            type = "DisplayPort";
+            break;
+        case BASS_DEVICE_TYPE_HANDSET:
+            type = "Handset";
+            break;
+        case BASS_DEVICE_TYPE_HDMI:
+            type = "HDMI";
+            break;
+        case BASS_DEVICE_TYPE_HEADPHONES:
+            type = "Headphones";
+            break;
+        case BASS_DEVICE_TYPE_HEADSET:
+            type = "Headset";
+            break;
+        case BASS_DEVICE_TYPE_LINE:
+            type = "Line";
+            break;
+        case BASS_DEVICE_TYPE_MICROPHONE:
+            type = "Microphone";
+            break;
+        case BASS_DEVICE_TYPE_NETWORK:
+            type = "Network";
+            break;
+        case BASS_DEVICE_TYPE_SPDIF:
+            type = "S/PDIF";
+            break;
+        case BASS_DEVICE_TYPE_SPEAKERS:
+            type = "Speakers";
+            break;
+    }
+    g_pCore->GetConsole()->Printf("Device name: [%s]; Device type: [%s]; Enabled: [%s]; Default: [%s]; Initialized: [%s]", info.name, type, info.flags&BASS_DEVICE_ENABLED ? "Yes" : "No", info.flags&BASS_DEVICE_DEFAULT ? "Yes" : "No", info.flags&BASS_DEVICE_INIT ? "Yes" : "No");
+#endif
+
+    // Start a recorder
+    m_pAudioStream = BASS_RecordStart(m_SampleRate, m_Channel, BASS_SAMPLE_FLOAT, &BASSCallback, this);
 
     m_pOutgoingBuffer = (char*)malloc(2048 * FRAME_OUTGOING_BUFFER_COUNT);
     m_uiOutgoingReadIndex = 0;
@@ -125,7 +161,7 @@ void CVoiceRecorder::DeInit(void)
         m_CS.Unlock();
         // Assumes now that BASSCallback is not executing in this context
 
-        m_pAudioStream = nullptr;
+        m_pAudioStream = NULL;
 
         m_iOpusOutgoingFrameSampleCount = 0;
 
@@ -138,7 +174,7 @@ void CVoiceRecorder::DeInit(void)
         m_VoiceState = VOICESTATE_AWAITING_INPUT;
         m_SampleRate = SAMPLERATE_WIDEBAND;
 
-        m_pAudioStream = nullptr;
+        m_pAudioStream = NULL;
 
         m_uiOutgoingReadIndex = 0;
         m_uiOutgoingWriteIndex = 0;
@@ -251,16 +287,17 @@ void CVoiceRecorder::DoPulse(void)
 
         unsigned int uiOpusFramesAvailable = uiBytesAvailable / uiOpusBlockSize;
 
-        g_pCore->GetConsole()->Printf("CVoiceRecorder::DoPulse - tick: %d, \
-m_iOpusOutgoingFrameSampleCount: %d, \
-m_uiOutgoingWriteIndex: %d, \
-m_uiOutgoingReadIndex: %d, \
-m_uiAudioBufferSize: %d, \
-m_Channel: %d, \
-uiBytesAvailable: %d, \
-uiOpusBlockSize: %d, \
-uiOpusFramesAvailable: %d, \
-VOICE_SAMPLE_SIZE: %d",
+#ifdef MTA_DEBUG
+        g_pCore->GetConsole()->Printf("CVoiceRecorder::DoPulse - tick: %i, \
+m_iOpusOutgoingFrameSampleCount: %i, \
+m_uiOutgoingWriteIndex: %i, \
+m_uiOutgoingReadIndex: %i, \
+m_uiAudioBufferSize: %i, \
+m_Channel: %i, \
+uiBytesAvailable: %i, \
+uiOpusBlockSize: %i, \
+uiOpusFramesAvailable: %i, \
+VOICE_SAMPLE_SIZE: %i",
             CClientTime::GetTime(),
             m_iOpusOutgoingFrameSampleCount,
             m_uiOutgoingWriteIndex,
@@ -272,6 +309,7 @@ VOICE_SAMPLE_SIZE: %d",
             uiOpusFramesAvailable,
             VOICE_SAMPLE_SIZE
         );
+#endif
 
         if (uiOpusFramesAvailable > 0)
         {
@@ -301,6 +339,7 @@ VOICE_SAMPLE_SIZE: %d",
 
                 g_pClientGame->GetLocalPlayer()->GetVoice()->DecodeAndBuffer(bufTempOutput, uiBytesWritten);
 
+                /*
                 NetBitStreamInterface* pBitStream = g_pNet->AllocateNetBitStream();
                 if (pBitStream)
                 {
@@ -316,14 +355,17 @@ VOICE_SAMPLE_SIZE: %d",
                         g_pNet->DeallocateNetBitStream(pBitStream);
                     }
                 }
+                */
             }
-            free(ucEncodedOutput);
+            // delete ucEncodedOutput;
+            // delete pInputBuffer;
+            // delete[] &bufTempOutput;
 
             m_ulTimeOfLastSend = CClientTime::GetTime();
         }
     }
 
-    if (m_VoiceState == VOICESTATE_RECORDING_LAST_PACKET)            // End of voice data (for events)
+    if (m_VoiceState == VOICESTATE_RECORDING_LAST_PACKET) // End of voice data (for events)
     {
         m_VoiceState = VOICESTATE_AWAITING_INPUT;
 
@@ -345,8 +387,6 @@ VOICE_SAMPLE_SIZE: %d",
 // Called from other thread. Critical section is already locked.
 void CVoiceRecorder::SendFrame(const void* inputBuffer, DWORD uiLength)
 {
-    g_pCore->GetConsole()->Print("Call to CVoiceRecorder::SendFrame received...");
-
     if (m_VoiceState != VOICESTATE_AWAITING_INPUT && m_bEnabled && inputBuffer)
     {
         g_pCore->GetConsole()->Print("CVoiceRecorder::SendFrame is now going to do some math...");
@@ -363,87 +403,15 @@ void CVoiceRecorder::SendFrame(const void* inputBuffer, DWORD uiLength)
         // Copy from our input buffer to our outgoing buffer at write index
         memcpy(m_pOutgoingBuffer + m_uiOutgoingWriteIndex, inputBuffer, uiLength);
 
-        g_pCore->GetConsole()->Printf("CVoiceRecorder::SendFrame [1] - tick: %d, \
-remainingBufferSize: %d, \
-uiLength: %d, \
-FRAME_OUTGOING_BUFFER_COUNT: %d, \
-uiTotalBufferSize: %d, \
-remainingBufferSize: %d, \
-m_uiOutgoingWriteIndex: %d, \
-m_uiOutgoingReadIndex: %d",
-CClientTime::GetTime(),
-remainingBufferSize,
-uiLength,
-FRAME_OUTGOING_BUFFER_COUNT,
-uiTotalBufferSize,
-remainingBufferSize,
-m_uiOutgoingWriteIndex,
-m_uiOutgoingReadIndex
-);
-
         // Re-align our write index
         m_uiOutgoingWriteIndex += uiLength;
-
-        g_pCore->GetConsole()->Printf("CVoiceRecorder::SendFrame [2] - tick: %d, \
-remainingBufferSize: %d, \
-uiLength: %d, \
-FRAME_OUTGOING_BUFFER_COUNT: %d, \
-uiTotalBufferSize: %d, \
-remainingBufferSize: %d, \
-m_uiOutgoingWriteIndex: %d, \
-m_uiOutgoingReadIndex: %d",
-CClientTime::GetTime(),
-remainingBufferSize,
-uiLength,
-FRAME_OUTGOING_BUFFER_COUNT,
-uiTotalBufferSize,
-remainingBufferSize,
-m_uiOutgoingWriteIndex,
-m_uiOutgoingReadIndex
-);
 
         // If we have reached the end of the buffer, go back to the start
         if (m_uiOutgoingWriteIndex == uiTotalBufferSize)
             m_uiOutgoingWriteIndex = 0;
 
-        g_pCore->GetConsole()->Printf("CVoiceRecorder::SendFrame [3] - tick: %d, \
-remainingBufferSize: %d, \
-uiLength: %d, \
-FRAME_OUTGOING_BUFFER_COUNT: %d, \
-uiTotalBufferSize: %d, \
-remainingBufferSize: %d, \
-m_uiOutgoingWriteIndex: %d, \
-m_uiOutgoingReadIndex: %d",
-CClientTime::GetTime(),
-remainingBufferSize,
-uiLength,
-FRAME_OUTGOING_BUFFER_COUNT,
-uiTotalBufferSize,
-remainingBufferSize,
-m_uiOutgoingWriteIndex,
-m_uiOutgoingReadIndex
-);
-
         // Wrap around the buffer?
         if (uiLength >= remainingBufferSize)
             m_uiOutgoingReadIndex = (m_uiOutgoingReadIndex + m_iOpusOutgoingFrameSampleCount * m_Channel * VOICE_SAMPLE_SIZE) % uiTotalBufferSize;
-
-        g_pCore->GetConsole()->Printf("CVoiceRecorder::SendFrame [4] - tick: %d, \
-remainingBufferSize: %d, \
-uiLength: %d, \
-FRAME_OUTGOING_BUFFER_COUNT: %d, \
-uiTotalBufferSize: %d, \
-remainingBufferSize: %d, \
-m_uiOutgoingWriteIndex: %d, \
-m_uiOutgoingReadIndex: %d",
-CClientTime::GetTime(),
-remainingBufferSize,
-uiLength,
-FRAME_OUTGOING_BUFFER_COUNT,
-uiTotalBufferSize,
-remainingBufferSize,
-m_uiOutgoingWriteIndex,
-m_uiOutgoingReadIndex
-);
     }
 }

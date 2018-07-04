@@ -80,7 +80,7 @@ private:
     bool        m_bEnabled;
     eVoiceState m_VoiceState;
 
-    HSTREAM* m_pAudioStream;
+    HRECORD m_pAudioStream;
 
     OpusEncoder* m_pOpusEncoderState;
 
