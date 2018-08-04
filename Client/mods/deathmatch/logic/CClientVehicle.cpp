@@ -999,6 +999,13 @@ void CClientVehicle::SetModelBlocking(unsigned short usModel, unsigned char ucVa
         if (m_pUpgrades)
             m_pUpgrades->RemoveAll(false);
 
+        // Unset tow link if the new vehicle is a Towtruck (#8668)
+        if (usModel == 525 && m_pTowedVehicle)
+        {
+            m_pTowedVehicle->SetTowedVehicle(nullptr);
+            m_pTowedVehicle = nullptr;
+        }
+
         // Are we swapping from a vortex or skimmer?
         bool bResetWheelAndDoorStates = (m_usModel == VT_VORTEX || m_usModel == VT_SKIMMER ||
                                          (m_eVehicleType == CLIENTVEHICLE_PLANE && m_eVehicleType != CClientVehicleManager::GetVehicleType(usModel)));

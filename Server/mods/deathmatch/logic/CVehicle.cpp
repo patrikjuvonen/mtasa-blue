@@ -452,6 +452,13 @@ void CVehicle::SetModel(unsigned short usModel)
 {
     if (usModel != m_usModel)
     {
+        // Unset tow link if the new vehicle is a Towtruck (#8668)
+        if (usModel == 525 && m_pTowedVehicle)
+        {
+            m_pTowedVehicle->SetTowedVehicle(nullptr);
+            m_pTowedVehicle = nullptr;
+        }
+
         m_usModel = usModel;
         m_eVehicleType = CVehicleManager::GetVehicleType(m_usModel);
         RandomizeColor();
