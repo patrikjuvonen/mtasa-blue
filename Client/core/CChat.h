@@ -14,46 +14,11 @@
 #include "CGUI.h"
 #include <core/CCoreInterface.h>
 
-class CChatLineSection;
-
-#define CHAT_WIDTH              320                             // Chatbox default width
-#define CHAT_TEXT_COLOR         CColor(235, 221, 178)           // Chatbox default text color
-#define CHAT_MAX_LINES          100                             // Chatbox maximum chat lines
-#define CHAT_MAX_CHAT_LENGTH    96                              // Chatbox maximum chat message length
-#define CHAT_BUFFER             1024                            // Chatbox buffer size
-
-class CColor
-{
-public:
-    CColor() { R = G = B = A = 255; }
-    CColor(unsigned char _R, unsigned char _G, unsigned char _B, unsigned char _A = 255)
-    {
-        R = _R;
-        G = _G;
-        B = _B;
-        A = _A;
-    }
-    CColor(const CColor& other) { *this = other; }
-    CColor(unsigned long ulColor) { *this = ulColor; }
-    CColor& operator=(const CColor& color)
-    {
-        R = color.R;
-        G = color.G;
-        B = color.B;
-        A = color.A;
-        return *this;
-    }
-    CColor& operator=(unsigned long ulColor)
-    {
-        R = (ulColor >> 16) & 0xFF;
-        G = (ulColor >> 8) & 0xFF;
-        B = (ulColor)&0xFF;
-        return *this;
-    }
-    bool operator==(const CColor& other) const { return R == other.R && G == other.G && B == other.B && A == other.A; }
-
-    unsigned char R, G, B, A;
-};
+#define CHAT_WIDTH 320                                            // Chatbox default width
+#define CHAT_TEXT_COLOR SColorRGBA(235, 221, 178, 255)            // Chatbox default text color
+#define CHAT_MAX_LINES 100                                        // Chatbox maximum chat lines
+#define CHAT_MAX_CHAT_LENGTH 96                                   // Chatbox maximum chat message length
+#define CHAT_BUFFER 1024                                          // Chatbox buffer size
 
 class CChatLineSection
 {
@@ -69,12 +34,12 @@ public:
     float       GetWidth();
     const char* GetText() { return m_strText.c_str(); }
     void        SetText(const char* szText) { m_strText = szText; }
-    void        GetColor(CColor& color) { color = m_Color; }
-    void        SetColor(const CColor& color) { m_Color = color; }
+    void        GetColor(SColorRGBA& color) { color = m_Color; }
+    void        SetColor(const SColorRGBA& color) { m_Color = color; }
 
 protected:
     std::string  m_strText;
-    CColor       m_Color;
+    SColorRGBA   m_Color = SColorRGBA(255, 255, 255, 255);
     float        m_fCachedWidth;
     unsigned int m_uiCachedLength;
 };
@@ -84,7 +49,7 @@ class CChatLine
 public:
     CChatLine();
 
-    virtual const char* Format(const char* szText, float fWidth, CColor& color, bool bColorCoded);
+    virtual const char* Format(const char* szText, float fWidth, SColorRGBA& color, bool bColorCoded);
     virtual void        Draw(const CVector2D& vecPosition, unsigned char ucAlpha, bool bShadow, bool bOutline, const CRect2D& RenderBounds);
     virtual float       GetWidth();
     bool                IsActive() { return m_bActive; }
@@ -182,9 +147,9 @@ public:
     static void  DrawTextString(const char* szText, CRect2D DrawArea, float fZ, CRect2D ClipRect, unsigned long ulFormat, unsigned long ulColor, float fScaleX,
                                 float fScaleY, bool bOutline, const CRect2D& RenderBounds);
 
-    void SetColor(const CColor& Color);
-    void SetInputColor(const CColor& Color);
-    void SetTextColor(const CColor& Color) { m_TextColor = Color; };
+    void SetColor(const SColorRGBA& Color);
+    void SetInputColor(const SColorRGBA& Color);
+    void SetTextColor(const SColorRGBA& Color) { m_TextColor = Color; };
     void SetNumLines(unsigned int uiNumLines);
 
     void Scroll(int iState) { m_iScrollState = iState; };
@@ -250,10 +215,10 @@ protected:
     float m_fInputBackgroundAlpha;
 
     unsigned int  m_uiNumLines;
-    CColor        m_Color;
-    CColor        m_TextColor;
-    CColor        m_InputColor;
-    CColor        m_InputTextColor;
+    SColorRGBA    m_Color;
+    SColorRGBA    m_TextColor;
+    SColorRGBA    m_InputColor;
+    SColorRGBA    m_InputTextColor;
     bool          m_bCssStyleText;
     bool          m_bCssStyleBackground;
     bool          m_bTextBlackOutline;

@@ -92,7 +92,7 @@ bool CClientVariables::Get(const std::string& strVariable, CVector2D& val)
     return true;
 }
 
-bool CClientVariables::Get(const std::string& strVariable, CColor& val)
+bool CClientVariables::Get(const std::string& strVariable, SColorRGBA& val)
 {
     std::stringstream ss;
     std::string       strVal;
@@ -147,7 +147,7 @@ void CClientVariables::Set(const std::string& strVariable, CVector2D val)
     Node(strVariable)->SetTagContent(szVal);
 }
 
-void CClientVariables::Set(const std::string& strVariable, CColor val)
+void CClientVariables::Set(const std::string& strVariable, SColorRGBA val)
 {
     std::stringstream ss;
     if (!m_pStorage)
@@ -204,10 +204,10 @@ void CClientVariables::ClampValue(const std::string& strVariable, float fMinValu
     CVARS_SET(strVariable, fTemp);
 }
 
-// Clamp CColor variable
-void CClientVariables::ClampValue(const std::string& strVariable, CColor minValue, CColor maxValue)
+// Clamp SColorRGBA variable
+void CClientVariables::ClampValue(const std::string& strVariable, SColorRGBA minValue, SColorRGBA maxValue)
 {
-    CColor temp;
+    SColorRGBA temp = SColorRGBA(255, 255, 255, 255);
     CVARS_GET(strVariable, temp);
     temp.R = Clamp(minValue.R, temp.R, maxValue.R);
     temp.G = Clamp(minValue.G, temp.G, maxValue.G);
@@ -237,11 +237,11 @@ void CClientVariables::ValidateValues()
     ClampValue("fps_limit", 0, 100);
     ClampValue("chat_font", 0, 3);
     ClampValue("chat_lines", 3, 62);
-    ClampValue("chat_color", CColor(0, 0, 0, 0), CColor(255, 255, 255, 255));
-    ClampValue("chat_text_color", CColor(0, 0, 0, 128), CColor(255, 255, 255, 255));
-    ClampValue("chat_input_color", CColor(0, 0, 0, 0), CColor(255, 255, 255, 255));
-    ClampValue("chat_input_prefix_color", CColor(0, 0, 0, 128), CColor(255, 255, 255, 255));
-    ClampValue("chat_input_text_color", CColor(0, 0, 0, 128), CColor(255, 255, 255, 255));
+    ClampValue("chat_color", SColorRGBA(0, 0, 0, 0), SColorRGBA(255, 255, 255, 255));
+    ClampValue("chat_text_color", SColorRGBA(0, 0, 0, 128), SColorRGBA(255, 255, 255, 255));
+    ClampValue("chat_input_color", SColorRGBA(0, 0, 0, 0), SColorRGBA(255, 255, 255, 255));
+    ClampValue("chat_input_prefix_color", SColorRGBA(0, 0, 0, 128), SColorRGBA(255, 255, 255, 255));
+    ClampValue("chat_input_text_color", SColorRGBA(0, 0, 0, 128), SColorRGBA(255, 255, 255, 255));
     ClampValue("chat_scale", CVector2D(0.5f, 0.5f), CVector2D(3, 3));
     ClampValue("chat_width", 0.5f, 4.f);
     ClampValue("chat_line_life", 1000, 120000000);
@@ -270,27 +270,27 @@ void CClientVariables::LoadDefaults()
         CCore::GetSingleton().RequestNewNickOnStart();                 // Request the user to set a new nickname
     }
 
-    DEFAULT("host", _S("127.0.0.1"));                                    // hostname
-    DEFAULT("port", 22003);                                              // port
-    DEFAULT("password", _S(""));                                         // password
-    DEFAULT("qc_host", _S("127.0.0.1"));                                 // quick connect hostname
-    DEFAULT("qc_port", 22003);                                           // quick connect port
-    DEFAULT("qc_password", _S(""));                                      // quick connect password
-    DEFAULT("debugfile", _S(""));                                        // debug filename
-    DEFAULT("console_pos", CVector2D(0, 0));                             // console position
-    DEFAULT("console_size", CVector2D(200, 200));                        // console size
-    DEFAULT("serverbrowser_size", CVector2D(720.0f, 495.0f));            // serverbrowser size
-    DEFAULT("fps_limit", 100);                                           // frame limiter
-    DEFAULT("chat_font", 2);                                             // chatbox font type
-    DEFAULT("chat_lines", 10);                                           // chatbox lines
-    DEFAULT("chat_color", CColor(0, 0, 0, 0));                           // chatbox background color
-    DEFAULT("chat_text_color", CColor(172, 213, 254, 255));              // chatbox text color
+    DEFAULT("host", _S("127.0.0.1"));                                      // hostname
+    DEFAULT("port", 22003);                                                // port
+    DEFAULT("password", _S(""));                                           // password
+    DEFAULT("qc_host", _S("127.0.0.1"));                                   // quick connect hostname
+    DEFAULT("qc_port", 22003);                                             // quick connect port
+    DEFAULT("qc_password", _S(""));                                        // quick connect password
+    DEFAULT("debugfile", _S(""));                                          // debug filename
+    DEFAULT("console_pos", CVector2D(0, 0));                               // console position
+    DEFAULT("console_size", CVector2D(200, 200));                          // console size
+    DEFAULT("serverbrowser_size", CVector2D(720.0f, 495.0f));              // serverbrowser size
+    DEFAULT("fps_limit", 100);                                             // frame limiter
+    DEFAULT("chat_font", 2);                                               // chatbox font type
+    DEFAULT("chat_lines", 10);                                             // chatbox lines
+    DEFAULT("chat_color", SColorRGBA(0, 0, 0, 0));                         // chatbox background color
+    DEFAULT("chat_text_color", SColorRGBA(172, 213, 254, 255));            // chatbox text color
     DEFAULT("chat_text_outline", false);
-    DEFAULT("chat_input_color", CColor(0, 0, 0, 0));                           // chatbox input background color
-    DEFAULT("chat_input_prefix_color", CColor(172, 213, 254, 255));            // chatbox input prefix color
-    DEFAULT("chat_input_text_color", CColor(172, 213, 254, 255));              // chatbox input text color
-    DEFAULT("chat_scale", CVector2D(1.0f, 1.0f));                              // chatbox scale
-    DEFAULT("chat_width", 1.5f);                                               // chatbox width
+    DEFAULT("chat_input_color", SColorRGBA(0, 0, 0, 0));                           // chatbox input background color
+    DEFAULT("chat_input_prefix_color", SColorRGBA(172, 213, 254, 255));            // chatbox input prefix color
+    DEFAULT("chat_input_text_color", SColorRGBA(172, 213, 254, 255));              // chatbox input text color
+    DEFAULT("chat_scale", CVector2D(1.0f, 1.0f));                                  // chatbox scale
+    DEFAULT("chat_width", 1.5f);                                                   // chatbox width
 
     DEFAULT("chat_css_style_text", false);                                            // chatbox css/hl style text
     DEFAULT("chat_css_style_background", false);                                      // chatbox css/hl style background

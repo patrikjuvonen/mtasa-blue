@@ -68,7 +68,7 @@ public:
     };
     bool Get(const std::string& strVariable, CVector& val);
     bool Get(const std::string& strVariable, CVector2D& val);
-    bool Get(const std::string& strVariable, CColor& val);
+    bool Get(const std::string& strVariable, SColorRGBA& val);
 
     // Set queries
     void Set(const std::string& strVariable, bool val)
@@ -103,11 +103,11 @@ public:
     };
     void Set(const std::string& strVariable, CVector val);
     void Set(const std::string& strVariable, CVector2D val);
-    void Set(const std::string& strVariable, CColor val);
+    void Set(const std::string& strVariable, SColorRGBA val);
 
     void ClampValue(const std::string& strVariable, int iMinValue, int iMaxValue);
     void ClampValue(const std::string& strVariable, float fMinValue, float fMaxValue);
-    void ClampValue(const std::string& strVariable, CColor minValue, CColor maxValue);
+    void ClampValue(const std::string& strVariable, SColorRGBA minValue, SColorRGBA maxValue);
     void ClampValue(const std::string& strVariable, CVector2D minValue, CVector2D maxValue);
 
     bool Exists(const std::string& strVariable);

@@ -3677,7 +3677,7 @@ void CSettings::CreateChatColorTab(eChatColorType eType, const char* szName, CGU
 void CSettings::LoadChatColorFromCVar(eChatColorType eType, const char* szCVar)
 {
     // Load the color according to the cvars and update the gui
-    CColor pColor;
+    SColorRGBA pColor;
     CVARS_GET(szCVar, pColor);
     SetChatColorValues(eType, pColor);
 }
@@ -3685,7 +3685,7 @@ void CSettings::LoadChatColorFromCVar(eChatColorType eType, const char* szCVar)
 void CSettings::SaveChatColor(eChatColorType eType, const char* szCVar)
 {
     // Save the color to the cvar if it's different
-    CColor pColor, pOldColor;
+    SColorRGBA pColor, pOldColor;
     pColor = GetChatColorValues(eType);
     CVARS_GET(szCVar, pOldColor);
 
@@ -3693,10 +3693,10 @@ void CSettings::SaveChatColor(eChatColorType eType, const char* szCVar)
         CVARS_SET(szCVar, pColor);
 }
 
-CColor CSettings::GetChatColorValues(eChatColorType eType)
+SColorRGBA CSettings::GetChatColorValues(eChatColorType eType)
 {
     // Retrieve the color according to the scrollbar values
-    CColor pColor;
+    SColorRGBA pColor;
     pColor.R = m_pChatRed[eType]->GetScrollPosition() * 255;
     pColor.G = m_pChatGreen[eType]->GetScrollPosition() * 255;
     pColor.B = m_pChatBlue[eType]->GetScrollPosition() * 255;
@@ -3704,7 +3704,7 @@ CColor CSettings::GetChatColorValues(eChatColorType eType)
     return pColor;
 }
 
-void CSettings::SetChatColorValues(eChatColorType eType, CColor pColor)
+void CSettings::SetChatColorValues(eChatColorType eType, SColorRGBA pColor)
 {
     // Set the scrollbar position based on the color
     m_pChatRed[eType]->SetScrollPosition((float)pColor.R / 255.0f);
@@ -3758,7 +3758,7 @@ void CSettings::LoadSkins()
 
 void CSettings::LoadChatColorFromString(eChatColorType eType, const string& strColor)
 {
-    CColor       pColor;
+    SColorRGBA   pColor;
     stringstream ss(strColor);
     int          iR, iG, iB, iA;
 

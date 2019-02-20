@@ -480,7 +480,7 @@ void CChat::Output(const char* szText, bool bColorCoded)
 {
     CChatLine*  pLine = NULL;
     const char* szRemainingText = szText;
-    CColor      color = m_TextColor;
+    SColorRGBA  color = m_TextColor;
 
     // Allow smooth scroll when text is added if game FX Quality is not low
     CGameSettings* gameSettings = CCore::GetSingleton().GetGame()->GetSettings();
@@ -845,7 +845,7 @@ void CChat::UpdatePosition()
     }
 }
 
-void CChat::SetColor(const CColor& Color)
+void CChat::SetColor(const SColorRGBA& Color)
 {
     unsigned long ulBackgroundColor = COLOR_ARGB(Color.A, Color.R, Color.G, Color.B);
 
@@ -853,7 +853,7 @@ void CChat::SetColor(const CColor& Color)
     m_pBackground->LoadFromTexture(m_pBackgroundTexture);
 }
 
-void CChat::SetInputColor(const CColor& Color)
+void CChat::SetInputColor(const SColorRGBA& Color)
 {
     unsigned long ulInputColor = COLOR_ARGB(Color.A, Color.R, Color.G, Color.B);
 
@@ -883,7 +883,7 @@ void CChat::SetInputText(const char* szText)
 {
     m_InputLine.Clear();
 
-    CColor      color = m_InputTextColor;
+    SColorRGBA  color = m_InputTextColor;
     const char* szRemainingText = m_InputLine.Format(szText, (m_vecInputSize.fX - (10.0f * m_vecScale.fX) - m_InputLine.m_Prefix.GetWidth()), color, false);
 
     CChatLine* pLine = NULL;
@@ -1020,7 +1020,7 @@ const char* CalcAnsiPtr(const char* szStringAnsi, const wchar_t* szPosition)
     return szStringAnsi + iOffset;
 }
 
-const char* CChatLine::Format(const char* szStringAnsi, float fWidth, CColor& color, bool bColorCoded)
+const char* CChatLine::Format(const char* szStringAnsi, float fWidth, SColorRGBA& color, bool bColorCoded)
 {
     std::wstring   wString = MbUTF8ToUTF16(szStringAnsi);
     const wchar_t* szString = wString.c_str();
@@ -1137,7 +1137,7 @@ void CChatInputLine::Draw(CVector2D& vecPosition, unsigned char ucAlpha, bool bS
 {
     CRect2D RenderBounds(0, 0, 9999, 9999);
 
-    CColor colPrefix;
+    SColorRGBA colPrefix;
     m_Prefix.GetColor(colPrefix);
     if (colPrefix.A > 0)
         m_Prefix.Draw(vecPosition, colPrefix.A, bShadow, bOutline, RenderBounds);

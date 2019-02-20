@@ -63,8 +63,6 @@ struct SKeyBindSection
     class CGUIListItem* headerItem;
 };
 
-class CColor;
-
 enum
 {
     FULLSCREEN_STANDARD,
@@ -394,15 +392,15 @@ private:
 
     void LoadSkins();
 
-    void   LoadChatPresets();
-    void   CreateChatColorTab(eChatColorType eType, const char* szName, CGUITabPanel* pParent);
-    void   LoadChatColorFromCVar(eChatColorType eType, const char* szCVar);
-    void   LoadChatColorFromString(eChatColorType eType, const std::string& strColor);
-    void   SaveChatColor(eChatColorType eType, const char* szCVar);
-    CColor GetChatColorValues(eChatColorType eType);
-    void   SetChatColorValues(eChatColorType eType, CColor pColor);
-    int    GetMilliseconds(CGUIEdit* pEdit);
-    void   SetMilliseconds(CGUIEdit* pEdit, int milliseconds);
+    void       LoadChatPresets();
+    void       CreateChatColorTab(eChatColorType eType, const char* szName, CGUITabPanel* pParent);
+    void       LoadChatColorFromCVar(eChatColorType eType, const char* szCVar);
+    void       LoadChatColorFromString(eChatColorType eType, const std::string& strColor);
+    void       SaveChatColor(eChatColorType eType, const char* szCVar);
+    SColorRGBA GetChatColorValues(eChatColorType eType);
+    void       SetChatColorValues(eChatColorType eType, SColorRGBA pColor);
+    int        GetMilliseconds(CGUIEdit* pEdit);
+    void       SetMilliseconds(CGUIEdit* pEdit, int milliseconds);
 
     void ResetGTAVolume();
     void SetRadioVolume(float fVolume);

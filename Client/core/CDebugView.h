@@ -15,8 +15,8 @@
 #include <gui/CGUI.h>
 #include "CChat.h"
 
-#define DEBUGVIEW_WIDTH         576                             // Debugview default width
-#define DEBUGVIEW_TEXT_COLOR    CColor( 235, 221, 178, 255 )    // Debugview default text color
+#define DEBUGVIEW_WIDTH 576                                            // Debugview default width
+#define DEBUGVIEW_TEXT_COLOR SColorRGBA(235, 221, 178, 255)            // Debugview default text color
 
 class CDebugView : public CChat
 {

@@ -449,6 +449,15 @@ namespace SharedUtil
             unsigned long ulARGB;
         };
 
+        SColor& operator=(unsigned long ulColor)
+        {
+            A = (ulColor >> 24) & 0xFF;
+            R = (ulColor >> 16) & 0xFF;
+            G = (ulColor >> 8) & 0xFF;
+            B = (ulColor)&0xFF;
+            return *this;
+        }
+
         SColor() {}
         SColor(unsigned long ulValue) { ulARGB = ulValue; }
 
@@ -463,12 +472,23 @@ namespace SharedUtil
     class SColorARGB : public SColor
     {
     public:
+        SColorARGB(){};
+
         SColorARGB(unsigned char ucA, unsigned char ucR, unsigned char ucG, unsigned char ucB)
         {
             A = ucA;
             R = ucR;
             G = ucG;
             B = ucB;
+        }
+
+        SColorARGB& operator=(const SColor& color)
+        {
+            A = color.A;
+            R = color.R;
+            G = color.G;
+            B = color.B;
+            return *this;
         }
 
         template <class T, class U, class V, class W>
@@ -489,12 +509,23 @@ namespace SharedUtil
     class SColorRGBA : public SColor
     {
     public:
+        SColorRGBA(){};
+
         SColorRGBA(unsigned char ucR, unsigned char ucG, unsigned char ucB, unsigned char ucA)
         {
             A = ucA;
             R = ucR;
             G = ucG;
             B = ucB;
+        }
+
+        SColorRGBA& operator=(const SColor& color)
+        {
+            A = color.A;
+            R = color.R;
+            G = color.G;
+            B = color.B;
+            return *this;
         }
 
         template <class T, class U, class V, class W>
