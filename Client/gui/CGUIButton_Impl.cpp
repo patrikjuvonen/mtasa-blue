@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- *  PROJECT:     Multi Theft Auto v1.0
+ *  PROJECT:     Multi Theft Auto
  *  LICENSE:     See LICENSE in the top level directory
  *  FILE:        gui/CGUIButton_Impl.cpp
  *  PURPOSE:     Button widget class
@@ -27,7 +27,7 @@ CGUIButton_Impl::CGUIButton_Impl(CGUI_Impl* pGUI, CGUIElement* pParent, const ch
 
     m_pWindow->setText(CGUI_Impl::GetUTFString(szCaption));
 
-    m_pWindow->setSize(CEGUI::Absolute, CEGUI::Size(128.0f, 24.0f));
+    m_pWindow->setSize(CEGUI::USize(cegui_absdim(128.0f), cegui_absdim(16.0f)));
     m_pWindow->setVisible(true);
 
     // Store the pointer to this CGUI element in the CEGUI element

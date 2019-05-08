@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- *  PROJECT:     Multi Theft Auto v1.0
+ *  PROJECT:     Multi Theft Auto
  *  LICENSE:     See LICENSE in the top level directory
  *  FILE:        gui/CGUIMemo_Impl.h
  *  PURPOSE:     Multi-line edit box widget class
@@ -17,7 +17,7 @@
 class CGUIMemo_Impl : public CGUIMemo, public CGUIElement_Impl, public CGUITabListItem
 {
 public:
-    CGUIMemo_Impl(class CGUI_Impl* pGUI, CGUIElement* pParent = NULL, const char* szText = "");
+    CGUIMemo_Impl(class CGUI_Impl* pGUI, CGUIElement* pParent = nullptr, const char* szText = "");
     ~CGUIMemo_Impl();
 
     void SetReadOnly(bool bReadOnly);

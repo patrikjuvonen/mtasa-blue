@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- *  PROJECT:     Multi Theft Auto v1.0
+ *  PROJECT:     Multi Theft Auto
  *  LICENSE:     See LICENSE in the top level directory
  *  FILE:        gui/CGUI_Impl.h
  *  PURPOSE:     Graphical User Interface module class
@@ -43,20 +43,6 @@ class CGUITab;
 class CGUITabPanel;
 struct IDirect3DDevice9;
 
-namespace CEGUI
-{
-    class FontManager;
-    class ImagesetManager;
-    class Renderer;
-    class System;
-    class SchemeManager;
-    class WindowManager;
-    class Image;
-    class EventArgs;
-    class GUISheet;
-    typedef GUISheet DefaultWindow;
-}            // namespace CEGUI
-
 class CGUI_Impl : public CGUI, public CGUITabList
 {
 public:
@@ -64,7 +50,6 @@ public:
     ~CGUI_Impl();
 
     void SetSkin(const char* szName);
-    void SetBidiEnabled(bool bEnabled);
 
     void Draw();
     void Invalidate();
@@ -82,25 +67,24 @@ public:
     eInputMode           GetGUIInputMode();
     static CEGUI::String GetUTFString(const char* szInput);
     static CEGUI::String GetUTFString(const std::string& strInput);
-    static CEGUI::String GetUTFString(const CEGUI::String& strInput);            // Not defined
 
     //
     CGUIMessageBox* CreateMessageBox(const char* szTitle, const char* szMessage, unsigned int uiFlags);
 
-    CGUIButton* CreateButton(CGUIElement* pParent = NULL, const char* szCaption = "");
-    CGUIButton* CreateButton(CGUITab* pParent = NULL, const char* szCaption = "");
+    CGUIButton* CreateButton(CGUIElement* pParent = nullptr, const char* szCaption = "");
+    CGUIButton* CreateButton(CGUITab* pParent = nullptr, const char* szCaption = "");
 
-    CGUICheckBox* CreateCheckBox(CGUIElement* pParent = NULL, const char* szCaption = "", bool bChecked = false);
-    CGUICheckBox* CreateCheckBox(CGUITab* pParent = NULL, const char* szCaption = "", bool bChecked = false);
+    CGUICheckBox* CreateCheckBox(CGUIElement* pParent = nullptr, const char* szCaption = "", bool bChecked = false);
+    CGUICheckBox* CreateCheckBox(CGUITab* pParent = nullptr, const char* szCaption = "", bool bChecked = false);
 
-    CGUIRadioButton* CreateRadioButton(CGUIElement* pParent = NULL, const char* szCaption = "");
-    CGUIRadioButton* CreateRadioButton(CGUITab* pParent = NULL, const char* szCaption = "");
+    CGUIRadioButton* CreateRadioButton(CGUIElement* pParent = nullptr, const char* szCaption = "");
+    CGUIRadioButton* CreateRadioButton(CGUITab* pParent = nullptr, const char* szCaption = "");
 
-    CGUIEdit* CreateEdit(CGUIElement* pParent = NULL, const char* szText = "");
-    CGUIEdit* CreateEdit(CGUITab* pParent = NULL, const char* szText = "");
+    CGUIEdit* CreateEdit(CGUIElement* pParent = nullptr, const char* szText = "");
+    CGUIEdit* CreateEdit(CGUITab* pParent = nullptr, const char* szText = "");
 
-    CGUIGridList* CreateGridList(CGUIElement* pParent = NULL, bool bFrame = true);
-    CGUIGridList* CreateGridList(CGUITab* pParent = NULL, bool bFrame = true);
+    CGUIGridList* CreateGridList(CGUIElement* pParent = nullptr, bool bFrame = true);
+    CGUIGridList* CreateGridList(CGUITab* pParent = nullptr, bool bFrame = true);
 
     CGUILabel* CreateLabel(CGUIElement* pParent, const char* szCaption = "");
     CGUILabel* CreateLabel(CGUITab* pParent, const char* szCaption = "");
@@ -109,8 +93,8 @@ public:
     CGUIProgressBar* CreateProgressBar(CGUIElement* pParent);
     CGUIProgressBar* CreateProgressBar(CGUITab* pParent);
 
-    CGUIMemo* CreateMemo(CGUIElement* pParent = NULL, const char* szText = "");
-    CGUIMemo* CreateMemo(CGUITab* pParent = NULL, const char* szText = "");
+    CGUIMemo* CreateMemo(CGUIElement* pParent = nullptr, const char* szText = "");
+    CGUIMemo* CreateMemo(CGUITab* pParent = nullptr, const char* szText = "");
 
     CGUIStaticImage* CreateStaticImage(CGUIElement* pParent);
     CGUIStaticImage* CreateStaticImage(CGUITab* pParent);
@@ -125,16 +109,16 @@ public:
     CGUIScrollPane* CreateScrollPane(CGUITab* pParent);
     CGUIScrollPane* CreateScrollPane();
 
-    CGUIScrollBar* CreateScrollBar(bool bHorizontal, CGUIElement* pParent = NULL);
-    CGUIScrollBar* CreateScrollBar(bool bHorizontal, CGUITab* pParent = NULL);
+    CGUIScrollBar* CreateScrollBar(bool bHorizontal, CGUIElement* pParent = nullptr);
+    CGUIScrollBar* CreateScrollBar(bool bHorizontal, CGUITab* pParent = nullptr);
 
-    CGUIComboBox* CreateComboBox(CGUIElement* pParent = NULL, const char* szCaption = "");
-    CGUIComboBox* CreateComboBox(CGUIComboBox* pParent = NULL, const char* szCaption = "");
+    CGUIComboBox* CreateComboBox(CGUIElement* pParent = nullptr, const char* szCaption = "");
+    CGUIComboBox* CreateComboBox(CGUIComboBox* pParent = nullptr, const char* szCaption = "");
 
     CGUIWebBrowser* CreateWebBrowser(CGUIElement* pParent = nullptr);
     CGUIWebBrowser* CreateWebBrowser(CGUITab* pParent = nullptr);
 
-    CGUIWindow* CreateWnd(CGUIElement* pParent = NULL, const char* szCaption = "");
+    CGUIWindow* CreateWnd(CGUIElement* pParent = nullptr, const char* szCaption = "");
     //
 
     CGUITexture* CreateTexture();
@@ -146,15 +130,15 @@ public:
     float       GetCurrentServerCursorAlpha();
     eCursorType GetCursorType();
 
-    void                    AddChild(CGUIElement_Impl* pChild);
-    CEGUI::FontManager*     GetFontManager();
-    CEGUI::ImagesetManager* GetImageSetManager();
-    CEGUI::Renderer*        GetRenderer();
-    CEGUI::System*          GetGUISystem();
-    CEGUI::SchemeManager*   GetSchemeManager();
-    CEGUI::WindowManager*   GetWindowManager();
-    void                    GetUniqueName(char* pBuf);
-    CEGUI::Window*          GetMasterWindow(CEGUI::Window* Window);
+    void                  AddChild(CGUIElement_Impl* pChild);
+    CEGUI::FontManager*   GetFontManager();
+    CEGUI::ImageManager*  GetImageManager();
+    CEGUI::Renderer*      GetRenderer();
+    CEGUI::System*        GetGUISystem();
+    CEGUI::SchemeManager* GetSchemeManager();
+    CEGUI::WindowManager* GetWindowManager();
+    void                  GetUniqueName(char* pBuf);
+    CEGUI::Window*        GetMasterWindow(CEGUI::Window* Window);
 
     CVector2D GetResolution();
     void      SetResolution(float fWidth, float fHeight);
@@ -166,7 +150,7 @@ public:
     CGUIFont* GetSAHeaderFont();
     CGUIFont* GetSAGothicFont();
     CGUIFont* GetSansFont();
-    bool      IsFontPresent(const char* szFont) { return m_pFontManager->isFontPresent(szFont); }
+    bool      IsFontPresent(const char* szFont) { return m_pFontManager->isDefined(szFont); }
 
     float GetTextExtent(const char* szText, const char* szFont = "default-normal");
     float GetMaxTextExtent(SString strFont, SString arg, ...);
@@ -270,7 +254,7 @@ public:
     bool Event_MouseLeave(const CEGUI::EventArgs& e);
     bool Event_Moved(const CEGUI::EventArgs& e);
     bool Event_Sized(const CEGUI::EventArgs& e);
-    bool Event_RedrawRequested(const CEGUI::EventArgs& e);
+    bool Event_Invalidated(const CEGUI::EventArgs& e);
     bool Event_FocusGained(const CEGUI::EventArgs& e);
     bool Event_FocusLost(const CEGUI::EventArgs& e);
 
@@ -282,19 +266,19 @@ public:
     bool        LoadImageset(const SString& strFilename);
 
 private:
-    CGUIButton*      _CreateButton(CGUIElement_Impl* pParent = NULL, const char* szCaption = "");
-    CGUICheckBox*    _CreateCheckBox(CGUIElement_Impl* pParent = NULL, const char* szCaption = "", bool bChecked = false);
-    CGUIRadioButton* _CreateRadioButton(CGUIElement_Impl* pParent = NULL, const char* szCaption = "");
-    CGUIEdit*        _CreateEdit(CGUIElement_Impl* pParent = NULL, const char* szText = "");
-    CGUIGridList*    _CreateGridList(CGUIElement_Impl* pParent = NULL, bool bFrame = true);
-    CGUILabel*       _CreateLabel(CGUIElement_Impl* pParent = NULL, const char* szCaption = "");
-    CGUIProgressBar* _CreateProgressBar(CGUIElement_Impl* pParent = NULL);
-    CGUIMemo*        _CreateMemo(CGUIElement_Impl* pParent = NULL, const char* szText = "");
-    CGUIStaticImage* _CreateStaticImage(CGUIElement_Impl* pParent = NULL);
-    CGUITabPanel*    _CreateTabPanel(CGUIElement_Impl* pParent = NULL);
-    CGUIScrollPane*  _CreateScrollPane(CGUIElement_Impl* pParent = NULL);
-    CGUIScrollBar*   _CreateScrollBar(bool bHorizontal, CGUIElement_Impl* pParent = NULL);
-    CGUIComboBox*    _CreateComboBox(CGUIElement_Impl* pParent = NULL, const char* szCaption = "");
+    CGUIButton*      _CreateButton(CGUIElement_Impl* pParent = nullptr, const char* szCaption = "");
+    CGUICheckBox*    _CreateCheckBox(CGUIElement_Impl* pParent = nullptr, const char* szCaption = "", bool bChecked = false);
+    CGUIRadioButton* _CreateRadioButton(CGUIElement_Impl* pParent = nullptr, const char* szCaption = "");
+    CGUIEdit*        _CreateEdit(CGUIElement_Impl* pParent = nullptr, const char* szText = "");
+    CGUIGridList*    _CreateGridList(CGUIElement_Impl* pParent = nullptr, bool bFrame = true);
+    CGUILabel*       _CreateLabel(CGUIElement_Impl* pParent = nullptr, const char* szCaption = "");
+    CGUIProgressBar* _CreateProgressBar(CGUIElement_Impl* pParent = nullptr);
+    CGUIMemo*        _CreateMemo(CGUIElement_Impl* pParent = nullptr, const char* szText = "");
+    CGUIStaticImage* _CreateStaticImage(CGUIElement_Impl* pParent = nullptr);
+    CGUITabPanel*    _CreateTabPanel(CGUIElement_Impl* pParent = nullptr);
+    CGUIScrollPane*  _CreateScrollPane(CGUIElement_Impl* pParent = nullptr);
+    CGUIScrollBar*   _CreateScrollBar(bool bHorizontal, CGUIElement_Impl* pParent = nullptr);
+    CGUIComboBox*    _CreateComboBox(CGUIElement_Impl* pParent = nullptr, const char* szCaption = "");
     CGUIWebBrowser*  _CreateWebBrowser(CGUIElement_Impl* pParent = nullptr);
 
     void      SubscribeToMouseEvents();
@@ -304,12 +288,13 @@ private:
 
     IDirect3DDevice9* m_pDevice;
 
-    CEGUI::Renderer*        m_pRenderer;
-    CEGUI::System*          m_pSystem;
-    CEGUI::FontManager*     m_pFontManager;
-    CEGUI::ImagesetManager* m_pImageSetManager;
-    CEGUI::SchemeManager*   m_pSchemeManager;
-    CEGUI::WindowManager*   m_pWindowManager;
+    CEGUI::Renderer*       m_pRenderer;
+    CEGUI::System*         m_pSystem;
+    CEGUI::FontManager*    m_pFontManager;
+    CEGUI::ImageManager*   m_pImageManager;
+    CEGUI::SchemeManager*  m_pSchemeManager;
+    CEGUI::WindowManager*  m_pWindowManager;
+    CEGUI::GlobalEventSet* m_pGlobalEventSet;
 
     CEGUI::DefaultWindow* m_pTop;
     const CEGUI::Image*   m_pCursor;

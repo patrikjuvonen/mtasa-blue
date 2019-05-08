@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- *  PROJECT:     Multi Theft Auto v1.0
+ *  PROJECT:     Multi Theft Auto
  *  LICENSE:     See LICENSE in the top level directory
  *  FILE:        gui/CGUIListItem_Impl.h
  *  PURPOSE:     List widget item class
@@ -12,7 +12,7 @@
 #pragma once
 
 #include <gui/CGUIListItem.h>
-#include <CEGUI.h>
+#include <CEGUI/CEGUI.h>
 
 class CGUIStaticImage;
 class CGUIStaticImage_Impl;

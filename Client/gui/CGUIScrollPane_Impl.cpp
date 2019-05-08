@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- *  PROJECT:     Multi Theft Auto v1.0
+ *  PROJECT:     Multi Theft Auto
  *  LICENSE:     See LICENSE in the top level directory
  *  FILE:        gui/CGUIScrollPane_Impl.cpp
  *  PURPOSE:     Scroll pane widget class
@@ -27,7 +27,7 @@ CGUIScrollPane_Impl::CGUIScrollPane_Impl(CGUI_Impl* pGUI, CGUIElement* pParent)
     // Create the window and set default settings
     m_pWindow = pGUI->GetWindowManager()->createWindow(CGUISCROLLPANE_NAME, szUnique);
     m_pWindow->setDestroyedByParent(false);
-    m_pWindow->setRect(CEGUI::Relative, CEGUI::Rect(0.9f, 0.9f, 0.9f, 0.9f));
+    m_pWindow->setArea(cegui_reldim(0.9f), cegui_reldim(0.9f), cegui_reldim(0.9f), cegui_reldim(0.9f));
 
     // Store the pointer to this CGUI element in the CEGUI element
     m_pWindow->setUserData(reinterpret_cast<void*>(this));
@@ -68,7 +68,7 @@ void CGUIScrollPane_Impl::SetHorizontalScrollPosition(float fPosition)
     {
         CEGUI::ScrollablePane* pScrollPane = reinterpret_cast<CEGUI::ScrollablePane*>(m_pWindow);
         float                  fFullWidth = pScrollPane->getContentPaneArea().getWidth();
-        float                  fViewWidth = pScrollPane->getAbsoluteWidth();
+        float                  fViewWidth = pScrollPane->getInnerRectClipper().getWidth();
 
         pScrollPane->setHorizontalScrollPosition(fPosition * ((fFullWidth - fViewWidth) / fFullWidth));
     }
@@ -83,7 +83,7 @@ void CGUIScrollPane_Impl::SetVerticalScrollPosition(float fPosition)
     {
         CEGUI::ScrollablePane* pScrollPane = reinterpret_cast<CEGUI::ScrollablePane*>(m_pWindow);
         float                  fFullHeight = pScrollPane->getContentPaneArea().getHeight();
-        float                  fViewHeight = pScrollPane->getAbsoluteHeight();
+        float                  fViewHeight = pScrollPane->getInnerRectClipper().getHeight();
 
         pScrollPane->setVerticalScrollPosition(fPosition * ((fFullHeight - fViewHeight) / fFullHeight));
     }
@@ -99,7 +99,7 @@ float CGUIScrollPane_Impl::GetHorizontalScrollPosition()
         CEGUI::ScrollablePane* pScrollPane = reinterpret_cast<CEGUI::ScrollablePane*>(m_pWindow);
 
         float fFullWidth = pScrollPane->getContentPaneArea().getWidth();
-        float fViewWidth = pScrollPane->getAbsoluteWidth();
+        float fViewWidth = pScrollPane->getInnerRectClipper().getWidth();
 
         // Prevent division by zero
         if (fFullWidth == fViewWidth)
@@ -120,7 +120,7 @@ float CGUIScrollPane_Impl::GetVerticalScrollPosition()
         CEGUI::ScrollablePane* pScrollPane = reinterpret_cast<CEGUI::ScrollablePane*>(m_pWindow);
 
         float fFullHeight = pScrollPane->getContentPaneArea().getHeight();
-        float fViewHeight = pScrollPane->getAbsoluteHeight();
+        float fViewHeight = pScrollPane->getInnerRectClipper().getHeight();
 
         // Prevent division by zero
         if (fFullHeight == fViewHeight)

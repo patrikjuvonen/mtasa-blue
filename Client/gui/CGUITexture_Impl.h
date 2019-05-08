@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- *  PROJECT:     Multi Theft Auto v1.0
+ *  PROJECT:     Multi Theft Auto
  *  LICENSE:     See LICENSE in the top level directory
  *  FILE:        gui/CGUITexture_Impl.h
  *  PURPOSE:     Texture handling class
@@ -12,12 +12,6 @@
 #pragma once
 
 #include <gui/CGUITexture.h>
-
-namespace CEGUI
-{
-    class Texture;
-    class Renderer;
-}            // namespace CEGUI
 
 class CGUITexture_Impl : public CGUITexture
 {
@@ -36,6 +30,8 @@ public:
     void CreateTexture(unsigned int width, unsigned int height);
 
 private:
+    CGUI_Impl* m_pGUI;
+
     CEGUI::Renderer* m_pRenderer;
     CEGUI::Texture*  m_pTexture;
 };

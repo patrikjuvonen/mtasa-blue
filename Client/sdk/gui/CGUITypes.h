@@ -54,8 +54,8 @@ enum CGUIMouseButton            // Synchronized with CEGUI::MouseButton in cegui
 enum CGUIVerticalAlign
 {
     CGUI_ALIGN_TOP = 0,
-    CGUI_ALIGN_BOTTOM = 1,
-    CGUI_ALIGN_VERTICALCENTER = 2,
+    CGUI_ALIGN_VERTICALCENTER = 1,
+    CGUI_ALIGN_BOTTOM = 2,
 };
 
 enum CGUIHorizontalAlign
@@ -63,9 +63,11 @@ enum CGUIHorizontalAlign
     CGUI_ALIGN_LEFT = 0,
     CGUI_ALIGN_RIGHT = 1,
     CGUI_ALIGN_HORIZONTALCENTER = 2,
+    CGUI_ALIGN_JUSTIFIED = 3,
     CGUI_ALIGN_LEFT_WORDWRAP = 4,
     CGUI_ALIGN_RIGHT_WORDWRAP = 5,
     CGUI_ALIGN_HORIZONTALCENTER_WORDWRAP = 6,
+    CGUI_ALIGN_JUSIFIED_WORDWRAP = 7,
 };
 
 class CGUIColor

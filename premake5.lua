@@ -123,9 +123,7 @@ workspace "MTASA"
 		include "Client/mods/deathmatch"
 		
 		group "Client/CEGUI"
-		include "vendor/cegui-0.4.0-custom/src/renderers/directx9GUIRenderer"
-		include "vendor/cegui-0.4.0-custom/WidgetSets/Falagard"
-		include "vendor/cegui-0.4.0-custom"
+		include "vendor/cegui"
 		
 		group "Vendor"
 		include "vendor/portaudio"

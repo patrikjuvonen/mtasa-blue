@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- *  PROJECT:     Multi Theft Auto v1.0
+ *  PROJECT:     Multi Theft Auto
  *  LICENSE:     See LICENSE in the top level directory
  *  FILE:        gui/CGUITab_Impl.cpp
  *  PURPOSE:     Tab widget class
@@ -36,12 +36,12 @@ CGUITab_Impl::CGUITab_Impl(CGUI_Impl* pGUI, CGUIElement_Impl* pParent, const cha
         SetParent(pParent);
 
         // Adjust the tab button (pParent should be a TabControl!)
-        reinterpret_cast<CEGUI::TabControl*>(((CGUITabPanel_Impl*)pParent)->m_pWindow)->setAbsoluteTabHeight(24.0f);
+        reinterpret_cast<CEGUI::TabControl*>(((CGUITabPanel_Impl*)pParent)->m_pWindow)->setTabHeight(cegui_absdim(24.0f));
     }
     else
     {
         pGUI->AddChild(this);
-        SetParent(NULL);
+        SetParent(nullptr);
     }
 }
 
@@ -63,27 +63,26 @@ void CGUITab_Impl::SetVisible(bool bVisible)
 {
     CGUIElement_Impl*  pParent = static_cast<CGUIElement_Impl*>(m_pParent);
     CEGUI::TabControl* pControl = reinterpret_cast<CEGUI::TabControl*>(((CGUITabPanel_Impl*)pParent)->m_pWindow);
-    pControl->getButtonForTabContents(m_pWindow)->setVisible(bVisible);
-    pControl->requestChildWindowLayout();
+    pControl->setVisible(bVisible);
 }
 
 bool CGUITab_Impl::IsVisible()
 {
     CGUIElement_Impl*  pParent = static_cast<CGUIElement_Impl*>(m_pParent);
     CEGUI::TabControl* pControl = reinterpret_cast<CEGUI::TabControl*>(((CGUITabPanel_Impl*)pParent)->m_pWindow);
-    return pControl->getButtonForTabContents(m_pWindow)->isVisible();
+    return pControl->isVisible();
 }
 
 void CGUITab_Impl::SetEnabled(bool bEnabled)
 {
     CGUIElement_Impl*  pParent = static_cast<CGUIElement_Impl*>(m_pParent);
     CEGUI::TabControl* pControl = reinterpret_cast<CEGUI::TabControl*>(((CGUITabPanel_Impl*)pParent)->m_pWindow);
-    pControl->getButtonForTabContents(m_pWindow)->setEnabled(bEnabled);
+    pControl->setEnabled(bEnabled);
 }
 
 bool CGUITab_Impl::IsEnabled()
 {
     CGUIElement_Impl*  pParent = static_cast<CGUIElement_Impl*>(m_pParent);
     CEGUI::TabControl* pControl = reinterpret_cast<CEGUI::TabControl*>(((CGUITabPanel_Impl*)pParent)->m_pWindow);
-    return !pControl->getButtonForTabContents(m_pWindow)->isDisabled();
+    return !pControl->isDisabled();
 }

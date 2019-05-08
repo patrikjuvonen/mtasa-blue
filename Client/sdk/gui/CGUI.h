@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- *  PROJECT:     Multi Theft Auto v1.0
+ *  PROJECT:     Multi Theft Auto
  *  LICENSE:     See LICENSE in the top level directory
  *  FILE:        sdk/gui/CGUI.h
  *  PURPOSE:     Graphical User Interface module interface
@@ -38,20 +38,19 @@ class CGUI;
 #include "CGUITypes.h"
 
 // Path defines for CGUI
-#define CGUI_ICON_MESSAGEBOX_INFO       "cgui\\images\\info.png"
-#define CGUI_ICON_MESSAGEBOX_QUESTION   "cgui\\images\\question.png"
-#define CGUI_ICON_MESSAGEBOX_WARNING    "cgui\\images\\warning.png"
-#define CGUI_ICON_MESSAGEBOX_ERROR      "cgui\\images\\error.png"
-#define CGUI_ICON_SERVER_PASSWORD       "cgui\\images\\locked.png"
+#define CGUI_ICON_MESSAGEBOX_INFO "cgui\\images\\info.png"
+#define CGUI_ICON_MESSAGEBOX_QUESTION "cgui\\images\\question.png"
+#define CGUI_ICON_MESSAGEBOX_WARNING "cgui\\images\\warning.png"
+#define CGUI_ICON_MESSAGEBOX_ERROR "cgui\\images\\error.png"
+#define CGUI_ICON_SERVER_PASSWORD "cgui\\images\\locked.png"
 #define CGUI_GetMaxTextExtent(...) GetMaxTextExtent(__VA_ARGS__, SString())
 
-#define CHECK_CHANNEL(channel) assert ( (channel) >= 0 && (channel) < INPUT_CHANNEL_COUNT )
+#define CHECK_CHANNEL(channel) assert((channel) >= 0 && (channel) < INPUT_CHANNEL_COUNT)
 
 class CGUI
 {
 public:
     virtual void SetSkin(const char* szName) = 0;
-    virtual void SetBidiEnabled(bool bEnabled) = 0;
 
     virtual void Draw() = 0;
     virtual void Invalidate() = 0;
@@ -70,20 +69,20 @@ public:
 
     //
     virtual CGUIMessageBox* CreateMessageBox(const char* szTitle, const char* szMessage, unsigned int uiFlags) = 0;
-    virtual CGUIButton*     CreateButton(CGUIElement* pParent = NULL, const char* szCaption = "") = 0;
-    virtual CGUIButton*     CreateButton(CGUITab* pParent = NULL, const char* szCaption = "") = 0;
+    virtual CGUIButton*     CreateButton(CGUIElement* pParent = nullptr, const char* szCaption = "") = 0;
+    virtual CGUIButton*     CreateButton(CGUITab* pParent = nullptr, const char* szCaption = "") = 0;
 
-    virtual CGUICheckBox* CreateCheckBox(CGUIElement* pParent = NULL, const char* szCaption = "", bool bChecked = false) = 0;
-    virtual CGUICheckBox* CreateCheckBox(CGUITab* pParent = NULL, const char* szCaption = "", bool bChecked = false) = 0;
+    virtual CGUICheckBox* CreateCheckBox(CGUIElement* pParent = nullptr, const char* szCaption = "", bool bChecked = false) = 0;
+    virtual CGUICheckBox* CreateCheckBox(CGUITab* pParent = nullptr, const char* szCaption = "", bool bChecked = false) = 0;
 
-    virtual CGUIRadioButton* CreateRadioButton(CGUIElement* pParent = NULL, const char* szCaption = "") = 0;
-    virtual CGUIRadioButton* CreateRadioButton(CGUITab* pParent = NULL, const char* szCaption = "") = 0;
+    virtual CGUIRadioButton* CreateRadioButton(CGUIElement* pParent = nullptr, const char* szCaption = "") = 0;
+    virtual CGUIRadioButton* CreateRadioButton(CGUITab* pParent = nullptr, const char* szCaption = "") = 0;
 
-    virtual CGUIEdit* CreateEdit(CGUIElement* pParent = NULL, const char* szText = "") = 0;
-    virtual CGUIEdit* CreateEdit(CGUITab* pParent = NULL, const char* szText = "") = 0;
+    virtual CGUIEdit* CreateEdit(CGUIElement* pParent = nullptr, const char* szText = "") = 0;
+    virtual CGUIEdit* CreateEdit(CGUITab* pParent = nullptr, const char* szText = "") = 0;
 
-    virtual CGUIGridList* CreateGridList(CGUIElement* pParent = NULL, bool bFrame = true) = 0;
-    virtual CGUIGridList* CreateGridList(CGUITab* pParent = NULL, bool bFrame = true) = 0;
+    virtual CGUIGridList* CreateGridList(CGUIElement* pParent = nullptr, bool bFrame = true) = 0;
+    virtual CGUIGridList* CreateGridList(CGUITab* pParent = nullptr, bool bFrame = true) = 0;
 
     virtual CGUILabel* CreateLabel(CGUIElement* pParent, const char* szCaption = "") = 0;
     virtual CGUILabel* CreateLabel(CGUITab* pParent, const char* szCaption = "") = 0;
@@ -92,8 +91,8 @@ public:
     virtual CGUIProgressBar* CreateProgressBar(CGUIElement* pParent) = 0;
     virtual CGUIProgressBar* CreateProgressBar(CGUITab* pParent) = 0;
 
-    virtual CGUIMemo* CreateMemo(CGUIElement* pParent = NULL, const char* szText = "") = 0;
-    virtual CGUIMemo* CreateMemo(CGUITab* pParent = NULL, const char* szText = "") = 0;
+    virtual CGUIMemo* CreateMemo(CGUIElement* pParent = nullptr, const char* szText = "") = 0;
+    virtual CGUIMemo* CreateMemo(CGUITab* pParent = nullptr, const char* szText = "") = 0;
 
     virtual CGUIStaticImage* CreateStaticImage(CGUIElement* pParent) = 0;
     virtual CGUIStaticImage* CreateStaticImage(CGUITab* pParent) = 0;
@@ -108,18 +107,18 @@ public:
     virtual CGUIScrollPane* CreateScrollPane(CGUITab* pParent) = 0;
     virtual CGUIScrollPane* CreateScrollPane() = 0;
 
-    virtual CGUIScrollBar* CreateScrollBar(bool bHorizontal, CGUIElement* pParent = NULL) = 0;
-    virtual CGUIScrollBar* CreateScrollBar(bool bHorizontal, CGUITab* pParent = NULL) = 0;
+    virtual CGUIScrollBar* CreateScrollBar(bool bHorizontal, CGUIElement* pParent = nullptr) = 0;
+    virtual CGUIScrollBar* CreateScrollBar(bool bHorizontal, CGUITab* pParent = nullptr) = 0;
 
-    virtual CGUIComboBox* CreateComboBox(CGUIElement* pParent = NULL, const char* szCaption = "") = 0;
-    virtual CGUIComboBox* CreateComboBox(CGUIComboBox* pParent = NULL, const char* szCaption = "") = 0;
+    virtual CGUIComboBox* CreateComboBox(CGUIElement* pParent = nullptr, const char* szCaption = "") = 0;
+    virtual CGUIComboBox* CreateComboBox(CGUIComboBox* pParent = nullptr, const char* szCaption = "") = 0;
 
     virtual CGUIWebBrowser* CreateWebBrowser(CGUIElement* pParent = nullptr) = 0;
     virtual CGUIWebBrowser* CreateWebBrowser(CGUITab* pParent = nullptr) = 0;
 
     //
 
-    virtual CGUIWindow* CreateWnd(CGUIElement* pParent = NULL, const char* szCaption = "") = 0;
+    virtual CGUIWindow* CreateWnd(CGUIElement* pParent = nullptr, const char* szCaption = "") = 0;
     virtual CGUIFont*   CreateFnt(const char* szFontName, const char* szFontFile, unsigned int uSize = 8, unsigned int uFlags = 0, bool bAutoScale = false) = 0;
     virtual CGUITexture* CreateTexture() = 0;
 

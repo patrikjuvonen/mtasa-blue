@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- *  PROJECT:     Multi Theft Auto v1.0
+ *  PROJECT:     Multi Theft Auto
  *  LICENSE:     See LICENSE in the top level directory
  *  FILE:        gui/CGUIMessageBox_Impl.cpp
  *  PURPOSE:     Message box class
@@ -12,10 +12,10 @@
 #include "StdInc.h"
 #include "../core/CFilePathTranslator.h"
 
-#define MESSAGEBOX_WIDTH        400.0f
-#define MESSAGEBOX_HEIGHT       150.0f
-#define MESSAGEBOX_SPACER       20
-#define MESSAGEBOX_ICON_SIZE    42
+#define MESSAGEBOX_WIDTH 400.0f
+#define MESSAGEBOX_HEIGHT 150.0f
+#define MESSAGEBOX_SPACER 20
+#define MESSAGEBOX_ICON_SIZE 42
 
 CGUIMessageBox_Impl::CGUIMessageBox_Impl(CGUI_Impl* pGUI, const char* szTitle, const char* szCaption, unsigned int uiFlags)
 {
@@ -53,8 +53,8 @@ CGUIMessageBox_Impl::CGUIMessageBox_Impl(CGUI_Impl* pGUI, const char* szTitle, c
     m_pLabelCaption = pGUI->CreateLabel(m_pWindow, szCaption);
     m_pLabelCaption->SetPosition(CVector2D(MESSAGEBOX_ICON_SIZE + MESSAGEBOX_SPACER * 2, MESSAGEBOX_SPACER));
     m_pLabelCaption->SetSize(CVector2D(MESSAGEBOX_WIDTH - MESSAGEBOX_ICON_SIZE - MESSAGEBOX_SPACER * 3, MESSAGEBOX_HEIGHT - MESSAGEBOX_SPACER * 2));
-    m_pLabelCaption->SetHorizontalAlign(CGUI_ALIGN_LEFT_WORDWRAP);
-    m_pLabelCaption->SetVerticalAlign(CGUI_ALIGN_VERTICALCENTER);
+    m_pLabelCaption->SetHorizontalAlign((CGUIHorizontalAlign)CEGUI::HTF_WORDWRAP_LEFT_ALIGNED);
+    m_pLabelCaption->SetVerticalAlign((CGUIVerticalAlign)CEGUI::VTF_CENTRE_ALIGNED);
     m_pLabelCaption->MoveToBack();
     m_pLabelCaption->SetZOrderingEnabled(false);
 

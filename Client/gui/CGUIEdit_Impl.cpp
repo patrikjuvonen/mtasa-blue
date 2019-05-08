@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- *  PROJECT:     Multi Theft Auto v1.0
+ *  PROJECT:     Multi Theft Auto
  *  LICENSE:     See LICENSE in the top level directory
  *  FILE:        gui/CGUIEdit_Impl.cpp
  *  PURPOSE:     Edit box widget class
@@ -24,7 +24,7 @@ CGUIEdit_Impl::CGUIEdit_Impl(CGUI_Impl* pGUI, CGUIElement* pParent, const char* 
     // Create the edit and set default settings
     m_pWindow = pGUI->GetWindowManager()->createWindow(CGUIEDIT_NAME, szUnique);
     m_pWindow->setDestroyedByParent(false);
-    m_pWindow->setRect(CEGUI::Absolute, CEGUI::Rect(0.00f, 0.00f, 0.128f, 0.24f));
+    m_pWindow->setSize(CEGUI::USize(cegui_absdim(128.0f), cegui_absdim(16.0f)));
 
     // Store the pointer to this CGUI element in the CEGUI element
     m_pWindow->setUserData(reinterpret_cast<void*>(this));
@@ -41,28 +41,22 @@ CGUIEdit_Impl::CGUIEdit_Impl(CGUI_Impl* pGUI, CGUIElement* pParent, const char* 
     {
         SetParent(reinterpret_cast<CGUIElement_Impl*>(pParent));
         if (CGUITabList* pTabList = dynamic_cast<CGUITabList*>(pParent))
-        {
             pTabList->AddItem(this);
-        }
     }
     else
     {
         pGUI->AddChild(this);
         pGUI->AddItem(this);
-        SetParent(NULL);
+        SetParent(nullptr);
     }
 }
 
 CGUIEdit_Impl::~CGUIEdit_Impl()
 {
-    if (GetParent() == NULL)
-    {
+    if (GetParent() == nullptr)
         m_pManager->RemoveItem(this);
-    }
     else if (CGUITabList* pTabList = dynamic_cast<CGUITabList*>(GetParent()))
-    {
         pTabList->RemoveItem(this);
-    }
     DestroyElement();
 }
 
@@ -118,22 +112,22 @@ unsigned int CGUIEdit_Impl::GetSelectionLength()
 
 void CGUIEdit_Impl::SetCaretIndex(unsigned int uiIndex)
 {
-    return reinterpret_cast<CEGUI::Editbox*>(m_pWindow)->setCaratIndex(uiIndex);
+    return reinterpret_cast<CEGUI::Editbox*>(m_pWindow)->setCaretIndex(uiIndex);
 }
 
 void CGUIEdit_Impl::SetCaretAtStart()
 {
-    reinterpret_cast<CEGUI::Editbox*>(m_pWindow)->setCaratIndex(0);
+    reinterpret_cast<CEGUI::Editbox*>(m_pWindow)->setCaretIndex(0);
 }
 
 void CGUIEdit_Impl::SetCaretAtEnd()
 {
-    reinterpret_cast<CEGUI::Editbox*>(m_pWindow)->setCaratIndex(GetText().length());
+    reinterpret_cast<CEGUI::Editbox*>(m_pWindow)->setCaretIndex(GetText().length());
 }
 
 unsigned int CGUIEdit_Impl::GetCaretIndex()
 {
-    return static_cast<unsigned int>(reinterpret_cast<CEGUI::Editbox*>(m_pWindow)->getCaratIndex());
+    return static_cast<unsigned int>(reinterpret_cast<CEGUI::Editbox*>(m_pWindow)->getCaretIndex());
 }
 
 void CGUIEdit_Impl::SetTextAcceptedHandler(GUI_CALLBACK Callback)
@@ -195,14 +189,10 @@ bool CGUIEdit_Impl::Event_OnKeyDown(const CEGUI::EventArgs& e)
     if (KeyboardArgs.scancode == CGUIKeys::Tab)
     {
         // tab pressed, if we are in a window with tab enabled, just switch to the next element
-        if (GetParent() == NULL)
-        {
+        if (GetParent() == nullptr)
             m_pManager->SelectNext(this);
-        }
         else if (CGUITabList* pTabList = dynamic_cast<CGUITabList*>(GetParent()))
-        {
             pTabList->SelectNext(this);
-        }
     }
     else if (KeyboardArgs.scancode == CGUIKeys::Return || KeyboardArgs.scancode == CGUIKeys::NumpadEnter)
     {

@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- *  PROJECT:     Multi Theft Auto v1.0
+ *  PROJECT:     Multi Theft Auto
  *  LICENSE:     See LICENSE in the top level directory
  *  FILE:        gui/CGUIWebBrowser_Impl.h
  *  PURPOSE:     WebBrowser CGUI class
@@ -12,7 +12,7 @@
 
 #include <gui/CGUIWebBrowser.h>
 #include "CGUITexture_Impl.h"
-#include <renderers/directx9GUIRenderer/d3d9texture.h>
+#include <CEGUI/RendererModules/Direct3D9/Texture.h>
 
 // Use StaticImage here as we'd have to add the same definition twice to the Falagard definition file otherwise
 #define CGUIWEBBROWSER_NAME "CGUI/StaticImage"
@@ -52,10 +52,9 @@ protected:
     bool Event_Deactivated(const CEGUI::EventArgs& e);
 
 private:
-    CGUI_Impl*              m_pGUI;
-    CEGUI::ImagesetManager* m_pImagesetManager;
-    CEGUI::Imageset*        m_pImageset;
-    CEGUI::Image*           m_pImage;
+    CGUI_Impl*           m_pGUI;
+    CEGUI::ImageManager* m_pImageManager;
+    CEGUI::Image*        m_pImage;
 
     CWebViewInterface* m_pWebView;
 
@@ -65,21 +64,21 @@ private:
 };
 
 // The purpose of this class is to provide an externally managed DirectX texture
-class CGUIWebBrowserTexture : public CEGUI::DirectX9Texture
+class CGUIWebBrowserTexture : public CEGUI::Direct3D9Texture
 {
 public:
     CGUIWebBrowserTexture(CEGUI::Renderer* pOwner, CWebViewInterface* pWebView);
 
-    virtual ushort getWidth() const override;
-    virtual ushort getHeight() const override;
+    virtual const CEGUI::Sizef& getSize() const override;
 
     // Override with empty function (--> eliminate the functinions from DirectX9Texture)
     virtual void loadFromFile(const CEGUI::String& filename, const CEGUI::String& resourceGroup) override{};
-    virtual void loadFromMemory(const void* buffPtr, uint buffWidth, uint buffHeight) override{};
+    virtual void loadFromMemory(const void* buffer, const CEGUI::Sizef& bufferSize, PixelFormat pixelFormat) override{};
 
-    virtual LPDIRECT3DTEXTURE9 getD3DTexture() const override;
-    virtual void               preD3DReset(){};
-    virtual void               postD3DReset(){};
+    virtual void preD3DReset(){};
+    virtual void postD3DReset(){};
+
+    LPDIRECT3DTEXTURE9 getDirect3D9Texture() const;
 
 private:
     CWebViewInterface* m_pWebView;

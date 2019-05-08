@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- *  PROJECT:     Multi Theft Auto v1.0
+ *  PROJECT:     Multi Theft Auto
  *  LICENSE:     See LICENSE in the top level directory
  *  FILE:        gui/CGUICheckBox_Impl.cpp
  *  PURPOSE:     Checkbox widget class
@@ -27,7 +27,7 @@ CGUICheckBox_Impl::CGUICheckBox_Impl(CGUI_Impl* pGUI, CGUIElement* pParent, cons
 
     m_pWindow->setText(CGUI_Impl::GetUTFString(szCaption));
 
-    m_pWindow->setSize(CEGUI::Absolute, CEGUI::Size(128.0f, 16.0f));
+    m_pWindow->setSize(CEGUI::USize(cegui_absdim(128.0f), cegui_absdim(16.0f)));
     m_pWindow->setVisible(true);
 
     // Store the pointer to this CGUI element in the CEGUI element
@@ -41,13 +41,11 @@ CGUICheckBox_Impl::CGUICheckBox_Impl(CGUI_Impl* pGUI, CGUIElement* pParent, cons
 
     // If a parent is specified, add it to it's children list, if not, add it as a child to the pManager
     if (pParent)
-    {
         SetParent(pParent);
-    }
     else
     {
         pGUI->AddChild(this);
-        SetParent(NULL);
+        SetParent(nullptr);
     }
 }
 
@@ -58,10 +56,10 @@ CGUICheckBox_Impl::~CGUICheckBox_Impl()
 
 void CGUICheckBox_Impl::SetSelected(bool bChecked)
 {
-    reinterpret_cast<CEGUI::Checkbox*>(m_pWindow)->setSelected(!bChecked);
+    reinterpret_cast<CEGUI::ToggleButton*>(m_pWindow)->setSelected(!bChecked);
 }
 
 bool CGUICheckBox_Impl::GetSelected()
 {
-    return !(reinterpret_cast<CEGUI::Checkbox*>(m_pWindow)->isSelected());
+    return !(reinterpret_cast<CEGUI::ToggleButton*>(m_pWindow)->isSelected());
 }

@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- *  PROJECT:     Multi Theft Auto v1.0
+ *  PROJECT:     Multi Theft Auto
  *  LICENSE:     See LICENSE in the top level directory
  *  FILE:        gui/CGUIComboBox_Impl.h
  *  PURPOSE:     Combobox widget class
@@ -30,7 +30,7 @@ CGUIComboBox_Impl::CGUIComboBox_Impl(CGUI_Impl* pGUI, CGUIElement* pParent, cons
 
     m_pWindow->setText(storedCaption);
 
-    m_pWindow->setSize(CEGUI::Absolute, CEGUI::Size(128.0f, 24.0f));
+    m_pWindow->setSize(CEGUI::USize(cegui_absdim(128.0f), cegui_absdim(24.0f)));
     m_pWindow->setVisible(true);
 
     // Store the pointer to this CGUI element in the CEGUI element
@@ -44,13 +44,11 @@ CGUIComboBox_Impl::CGUIComboBox_Impl(CGUI_Impl* pGUI, CGUIElement* pParent, cons
 
     // If a parent is specified, add it to it's children list, if not, add it as a child to the pManager
     if (pParent)
-    {
         SetParent(pParent);
-    }
     else
     {
         pGUI->AddChild(this);
-        SetParent(NULL);
+        SetParent(nullptr);
     }
 }
 
@@ -177,7 +175,7 @@ bool CGUIComboBox_Impl::SetItemText(int index, const char* szText)
     try
     {
         CEGUI::ListboxItem* pItem = reinterpret_cast<CEGUI::Combobox*>(m_pWindow)->getListboxItemFromIndex(index);
-        pItem->setText(CGUI_Impl::GetUTFString(szText), NULL);
+        pItem->setText(CGUI_Impl::GetUTFString(szText));
         if (pItem->isSelected())            // if this is currently selected, let's update the editbox.
         {
             m_pWindow->setText(CGUI_Impl::GetUTFString(szText));

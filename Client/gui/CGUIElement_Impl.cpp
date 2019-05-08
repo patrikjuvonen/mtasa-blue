@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- *  PROJECT:     Multi Theft Auto v1.0
+ *  PROJECT:     Multi Theft Auto
  *  LICENSE:     See LICENSE in the top level directory
  *  FILE:        gui/CGUIElement_Impl.cpp
  *  PURPOSE:     Element (widget) base class
@@ -20,10 +20,10 @@
 
 CGUIElement_Impl::CGUIElement_Impl()
 {
-    m_pData = NULL;
-    m_pWindow = NULL;
-    m_pParent = NULL;
-    m_pManager = NULL;
+    m_pData = nullptr;
+    m_pWindow = nullptr;
+    m_pParent = nullptr;
+    m_pManager = nullptr;
 }
 
 void CGUIElement_Impl::DestroyElement()
@@ -31,7 +31,7 @@ void CGUIElement_Impl::DestroyElement()
     m_pManager->RemoveFromRedrawQueue(reinterpret_cast<CGUIElement*>((m_pWindow)->getUserData()));
 
     // Clear pointer back to this
-    m_pWindow->setUserData(NULL);
+    m_pWindow->setUserData(nullptr);
 
     // Destroy the control
     m_pManager->GetWindowManager()->destroyWindow(m_pWindow);
@@ -83,135 +83,149 @@ void CGUIElement_Impl::MoveToBack()
 
 void CGUIElement_Impl::SetPosition(const CVector2D& Position, bool bRelative)
 {
-    CEGUI::Point Temp = CEGUI::Point(Position.fX, Position.fY);
-
     if (bRelative)
-        m_pWindow->setPosition(CEGUI::Relative, Temp);
+        m_pWindow->setPosition(CEGUI::Vector2<CEGUI::UDim>(cegui_reldim(Position.fX), cegui_reldim(Position.fY)));
     else
-        m_pWindow->setPosition(CEGUI::Absolute, Temp);
+        m_pWindow->setPosition(CEGUI::Vector2<CEGUI::UDim>(cegui_absdim(Position.fX), cegui_absdim(Position.fY)));
 
     CorrectEdges();
 }
 
 CVector2D CGUIElement_Impl::GetPosition(bool bRelative)
 {
-    CEGUI::Point CEGUITemp;
-
     if (bRelative)
-        CEGUITemp = m_pWindow->getPosition(CEGUI::Relative);
+    {
+        CEGUI::UVector2 temp = m_pWindow->getPosition();
+        return CVector2D(temp.d_x.d_scale, temp.d_y.d_scale);
+    }
     else
-        CEGUITemp = m_pWindow->getPosition(CEGUI::Absolute);
-
-    return CVector2D(CEGUITemp.d_x, CEGUITemp.d_y);
+    {
+        CEGUI::Vector2f temp = m_pWindow->getPixelPosition();
+        return CVector2D(temp.d_x, temp.d_y);
+    }
 }
 
 void CGUIElement_Impl::GetPosition(CVector2D& vecPosition, bool bRelative)
 {
-    CEGUI::MetricsMode type = CEGUI::Absolute;
-
     if (bRelative)
-        type = CEGUI::Relative;
+    {
+        CEGUI::UVector2 temp = m_pWindow->getPosition();
 
-    CEGUI::Point Temp = m_pWindow->getPosition(type);
+        vecPosition.fX = temp.d_x.d_offset;
+        vecPosition.fY = temp.d_y.d_offset;
+    }
+    else
+    {
+        CEGUI::Vector2f temp = m_pWindow->getPixelPosition();
 
-    vecPosition.fX = Temp.d_x;
-    vecPosition.fY = Temp.d_y;
+        vecPosition.fX = temp.d_x;
+        vecPosition.fY = temp.d_y;
+    }
 }
 
 void CGUIElement_Impl::SetWidth(float fX, bool bRelative)
 {
     if (bRelative)
-        m_pWindow->setWidth(CEGUI::Relative, fX);
+        m_pWindow->setWidth(cegui_reldim(fX));
     else
-        m_pWindow->setWidth(CEGUI::Absolute, fX);
+        m_pWindow->setWidth(cegui_absdim(fX));
 }
 
 void CGUIElement_Impl::SetHeight(float fY, bool bRelative)
 {
     if (bRelative)
-        m_pWindow->setHeight(CEGUI::Relative, fY);
+        m_pWindow->setHeight(cegui_reldim(fY));
     else
-        m_pWindow->setHeight(CEGUI::Absolute, fY);
+        m_pWindow->setHeight(cegui_absdim(fY));
 }
 
 void CGUIElement_Impl::SetSize(const CVector2D& vecSize, bool bRelative)
 {
-    if (bRelative)
-        m_pWindow->setSize(CEGUI::Relative, CEGUI::Size(vecSize.fX, vecSize.fY));
-    else
-        m_pWindow->setSize(CEGUI::Absolute, CEGUI::Size(vecSize.fX, vecSize.fY));
+    CEGUI::USize size;
 
+    if (bRelative)
+        size = CEGUI::USize(cegui_reldim(vecSize.fX), cegui_reldim(vecSize.fY));
+    else
+        size = CEGUI::USize(cegui_absdim(vecSize.fX), cegui_absdim(vecSize.fY));
+
+    m_pWindow->setSize(size);
     CorrectEdges();
 }
 
 CVector2D CGUIElement_Impl::GetSize(bool bRelative)
 {
-    CEGUI::Size TempSize;
-
     if (bRelative)
-        TempSize = m_pWindow->getRelativeSize();
+    {
+        CEGUI::USize size = m_pWindow->getSize();
+        return CVector2D(size.d_width.d_scale, size.d_height.d_scale);
+    }
     else
-        TempSize = m_pWindow->getAbsoluteSize();
-
-    return CVector2D(TempSize.d_width, TempSize.d_height);
+    {
+        CEGUI::Sizef size = m_pWindow->getPixelSize();
+        return CVector2D(size.d_width, size.d_height);
+    }
 }
 
 void CGUIElement_Impl::GetSize(CVector2D& vecSize, bool bRelative)
 {
-    CEGUI::Size TempSize;
+    CEGUI::USize size = m_pWindow->getSize();
 
     if (bRelative)
-        TempSize = m_pWindow->getRelativeSize();
+    {
+        CEGUI::USize size = m_pWindow->getSize();
+        vecSize.fX = size.d_width.d_scale;
+        vecSize.fY = size.d_height.d_scale;
+    }
     else
-        TempSize = m_pWindow->getAbsoluteSize();
-
-    vecSize.fX = TempSize.d_width;
-    vecSize.fY = TempSize.d_height;
+    {
+        CEGUI::Sizef size = m_pWindow->getPixelSize();
+        vecSize.fX = size.d_width;
+        vecSize.fY = size.d_height;
+    }
 }
 
 void CGUIElement_Impl::AutoSize(const char* Text, float fPaddingX, float fPaddingY)
 {
     const CEGUI::Font* pFont = m_pWindow->getFont();
-    m_pWindow->setSize(CEGUI::Absolute,
-                       CEGUI::Size(pFont->getTextExtent(CGUI_Impl::GetUTFString(Text ? Text : GetText())) + fPaddingX,
-                                   pFont->getFontHeight() + fPaddingY));            // Add hack factor to height to allow for long characters such as 'g' or 'j'
+    m_pWindow->setSize(
+        CEGUI::USize(cegui_absdim(pFont->getTextExtent(CGUI_Impl::GetUTFString(Text ? Text : GetText())) + fPaddingX),
+                     cegui_absdim(pFont->getFontHeight() + fPaddingY)));            // Add hack factor to height to allow for long characters such as 'g' or 'j'
 }
 
 void CGUIElement_Impl::SetMinimumSize(const CVector2D& vecSize)
 {
-    m_pWindow->setMetricsMode(CEGUI::Absolute);
-    m_pWindow->setMinimumSize(CEGUI::Size(vecSize.fX, vecSize.fY));
+    m_pWindow->setMinSize(CEGUI::USize(cegui_absdim(vecSize.fX), cegui_absdim(vecSize.fY)));
 }
 
 CVector2D CGUIElement_Impl::GetMinimumSize()
 {
-    const CEGUI::Size& TempSize = m_pWindow->getMinimumSize();
-    return CVector2D(TempSize.d_width, TempSize.d_height);
+    const CEGUI::USize& minSize = m_pWindow->getMinSize();
+    return CVector2D(minSize.d_width.d_offset, minSize.d_height.d_offset);
 }
 
 void CGUIElement_Impl::GetMinimumSize(CVector2D& vecSize)
 {
-    const CEGUI::Size& Temp = m_pWindow->getMinimumSize();
-    vecSize.fX = Temp.d_width;
-    vecSize.fY = Temp.d_height;
+    const CEGUI::USize& minSize = m_pWindow->getMinSize();
+    vecSize.fX = minSize.d_width.d_offset;
+    vecSize.fY = minSize.d_height.d_offset;
 }
 
 void CGUIElement_Impl::SetMaximumSize(const CVector2D& vecSize)
 {
-    m_pWindow->setMaximumSize(CEGUI::Size(vecSize.fX, vecSize.fY));
+    m_pWindow->setMaxSize(CEGUI::USize(cegui_absdim(vecSize.fX), cegui_absdim(vecSize.fY)));
 }
 
 CVector2D CGUIElement_Impl::GetMaximumSize()
 {
-    const CEGUI::Size& TempSize = m_pWindow->getMaximumSize();
-    return CVector2D(TempSize.d_width, TempSize.d_height);
+    const CEGUI::USize& maxSize = m_pWindow->getMaxSize();
+    return CVector2D(maxSize.d_width.d_offset, maxSize.d_height.d_offset);
 }
 
 void CGUIElement_Impl::GetMaximumSize(CVector2D& vecSize)
 {
-    const CEGUI::Size& Temp = m_pWindow->getSize();
-    vecSize.fX = Temp.d_width;
-    vecSize.fY = Temp.d_height;
+    const CEGUI::USize& maxSize = m_pWindow->getMaxSize();
+    vecSize.fX = maxSize.d_width.d_offset;
+    vecSize.fY = maxSize.d_height.d_offset;
 }
 
 void CGUIElement_Impl::SetText(const char* szText)
@@ -276,30 +290,30 @@ bool CGUIElement_Impl::IsAlwaysOnTop()
 
 CRect2D CGUIElement_Impl::AbsoluteToRelative(const CRect2D& Rect)
 {
-    CEGUI::Rect TempRect = CEGUI::Rect(Rect.fX1, Rect.fY1, Rect.fX2, Rect.fY2);
-    TempRect = m_pWindow->absoluteToRelative(TempRect);
-    return CRect2D(TempRect.d_left, TempRect.d_top, TempRect.d_right, TempRect.d_bottom);
+    CEGUI::URect AbsRect(cegui_absdim(Rect.fX1), cegui_absdim(Rect.fY1), cegui_absdim(Rect.fX2), cegui_absdim(Rect.fY2));
+    CEGUI::Rectf RelRect = CEGUI::CoordConverter::asRelative(AbsRect, m_pWindow->getPixelSize());
+    return CRect2D(RelRect.d_min.d_x, RelRect.d_min.d_y, RelRect.d_max.d_x, RelRect.d_max.d_y);
 }
 
 CVector2D CGUIElement_Impl::AbsoluteToRelative(const CVector2D& Vector)
 {
-    CEGUI::Size TempSize = CEGUI::Size(Vector.fX, Vector.fY);
-    TempSize = m_pWindow->absoluteToRelative(TempSize);
-    return CVector2D(TempSize.d_width, TempSize.d_height);
+    CEGUI::USize AbsVec(cegui_absdim(Vector.fX), cegui_absdim(Vector.fY));
+    CEGUI::Sizef RelVec = CEGUI::CoordConverter::asRelative(AbsVec, m_pWindow->getPixelSize());
+    return CVector2D(RelVec.d_width, RelVec.d_height);
 }
 
 CRect2D CGUIElement_Impl::RelativeToAbsolute(const CRect2D& Rect)
 {
-    CEGUI::Rect TempRect = CEGUI::Rect(Rect.fX1, Rect.fY1, Rect.fX2, Rect.fY2);
-    TempRect = m_pWindow->relativeToAbsolute(TempRect);
-    return CRect2D(TempRect.d_left, TempRect.d_top, TempRect.d_right, TempRect.d_bottom);
+    CEGUI::URect AbsRect(cegui_absdim(Rect.fX1), cegui_absdim(Rect.fY1), cegui_absdim(Rect.fX2), cegui_absdim(Rect.fY2));
+    CEGUI::Rectf RelRect = CEGUI::CoordConverter::asAbsolute(AbsRect, m_pWindow->getPixelSize());
+    return CRect2D(RelRect.d_min.d_x, RelRect.d_min.d_y, RelRect.d_max.d_x, RelRect.d_max.d_y);
 }
 
 CVector2D CGUIElement_Impl::RelativeToAbsolute(const CVector2D& Vector)
 {
-    CEGUI::Size TempSize = CEGUI::Size(Vector.fX, Vector.fY);
-    TempSize = m_pWindow->relativeToAbsolute(TempSize);
-    return CVector2D(TempSize.d_width, TempSize.d_height);
+    CEGUI::USize AbsVec(cegui_absdim(Vector.fX), cegui_absdim(Vector.fY));
+    CEGUI::Sizef RelVec = CEGUI::CoordConverter::asAbsolute(AbsVec, m_pWindow->getPixelSize());
+    return CVector2D(RelVec.d_width, RelVec.d_height);
 }
 
 void CGUIElement_Impl::SetParent(CGUIElement* pParent)
@@ -312,7 +326,7 @@ void CGUIElement_Impl::SetParent(CGUIElement* pParent)
     {
         CGUIElement_Impl* pElement = dynamic_cast<CGUIElement_Impl*>(pParent);
         if (pElement)
-            pElement->m_pWindow->addChildWindow(m_pWindow);
+            pElement->m_pWindow->addChild(m_pWindow);
     }
     m_pParent = pParent;
 }
@@ -333,25 +347,26 @@ CEGUI::Window* CGUIElement_Impl::GetWindow()
 
 void CGUIElement_Impl::CorrectEdges()
 {
-    CEGUI::Point currentPoint = m_pWindow->getPosition(CEGUI::Absolute);
-    CEGUI::Size  currentSize = m_pWindow->getSize(CEGUI::Absolute);
+    CEGUI::UVector2 currentPosition = m_pWindow->getPosition();
+    CEGUI::USize    currentSize = m_pWindow->getSize();
     // Label turns out to be buggy
     if (m_pWindow->getType() == "CGUI/StaticText")
         return;
 
     if (m_pWindow->getParent()->getType() == "CGUI/FrameWindow")
     {
-        CEGUI::Size parentSize = m_pWindow->getParent()->getSize(CEGUI::Absolute);
-        if (currentPoint.d_x < CGUI_NODRAW_LEFT)
-            currentPoint.d_x += CGUI_NODRAW_LEFT - currentPoint.d_x;
-        if (currentPoint.d_y < CGUI_NODRAW_TOP)
-            currentPoint.d_y += CGUI_NODRAW_TOP - currentPoint.d_x;
-        if ((currentSize.d_height + currentPoint.d_y) > (parentSize.d_height - CGUI_NODRAW_BOTTOM))
-            currentSize.d_height -= (currentSize.d_height + currentPoint.d_y) - (parentSize.d_height - CGUI_NODRAW_BOTTOM);
-        if ((currentSize.d_width + currentPoint.d_x) > (parentSize.d_width - CGUI_NODRAW_RIGHT))
-            currentSize.d_width -= (currentSize.d_width + currentPoint.d_x) - (parentSize.d_width - CGUI_NODRAW_RIGHT);
-        m_pWindow->setPosition(CEGUI::Absolute, currentPoint);
-        m_pWindow->setSize(CEGUI::Absolute, currentSize);
+        CEGUI::USize parentSize = m_pWindow->getParent()->getSize();
+        if (currentPosition.d_x.d_offset < CGUI_NODRAW_LEFT)
+            currentPosition.d_x.d_offset += CGUI_NODRAW_LEFT - currentPosition.d_x.d_offset;
+        if (currentPosition.d_y.d_offset < CGUI_NODRAW_TOP)
+            currentPosition.d_y.d_offset += CGUI_NODRAW_TOP - currentPosition.d_x.d_offset;
+        if ((currentSize.d_height.d_offset + currentPosition.d_y.d_offset) > (parentSize.d_height.d_offset - CGUI_NODRAW_BOTTOM))
+            currentSize.d_height.d_offset -=
+                (currentSize.d_height.d_offset + currentPosition.d_y.d_offset) - (parentSize.d_height.d_offset - CGUI_NODRAW_BOTTOM);
+        if ((currentSize.d_width.d_offset + currentPosition.d_x.d_offset) > (parentSize.d_width.d_offset - CGUI_NODRAW_RIGHT))
+            currentSize.d_width.d_offset -= (currentSize.d_width.d_offset + currentPosition.d_x.d_offset) - (parentSize.d_width.d_offset - CGUI_NODRAW_RIGHT);
+        m_pWindow->setPosition(currentPosition);
+        m_pWindow->setSize(currentSize);
     }
 }
 
@@ -415,7 +430,7 @@ std::string CGUIElement_Impl::GetProperty(const char* szProperty)
 
 void CGUIElement_Impl::FillProperties()
 {
-    CEGUI::Window::PropertyIterator itPropertySet = ((CEGUI::PropertySet*)m_pWindow)->getIterator();
+    CEGUI::Window::PropertyIterator itPropertySet = ((CEGUI::PropertySet*)m_pWindow)->getPropertyIterator();
     while (!itPropertySet.isAtEnd())
     {
         CEGUI::String strKey = itPropertySet.getCurrentKey();
@@ -660,5 +675,5 @@ bool CGUIElement_Impl::Event_OnKeyDown(const CEGUI::EventArgs& e)
 
 inline void CGUIElement_Impl::ForceRedraw()
 {
-    m_pWindow->forceRedraw();
+    m_pWindow->getGUIContext().draw();
 }

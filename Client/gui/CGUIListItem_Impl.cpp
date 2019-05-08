@@ -21,22 +21,24 @@ CGUIListItem_Impl::CGUIListItem_Impl(const char* szText, unsigned int uiType, CG
         case TextItem:
             m_pListItem = new CEGUI::ListboxTextItem(CGUI_Impl::GetUTFString(szText));
             break;
+        /*
         case ImageItem:
-            m_pListItem = new CEGUI::ListboxImageItem(pImage ? pImage->GetDirectImage() : NULL);
+            m_pListItem = new CEGUI::ListboxImageItem(pImage ? pImage->GetDirectImage() : nullptr);
             break;
         case NumberItem:
             m_pListItem = new CEGUI::ListboxNumberItem(CGUI_Impl::GetUTFString(szText));
             break;
+        */
     }
 
     if (m_pListItem)
     {
         // Set flags and properties
         m_pListItem->setAutoDeleted(false);
-        m_pListItem->setSelectionBrushImage("CGUI-Images", "ListboxSelectionBrush");
+        m_pListItem->setSelectionBrushImage("CGUI-Images/ListboxSelectionBrush");
     }
 
-    m_pData = NULL;
+    m_pData = nullptr;
 }
 
 CGUIListItem_Impl::~CGUIListItem_Impl()
@@ -59,7 +61,7 @@ void CGUIListItem_Impl::SetFont(const char* szFontName)
 
 void CGUIListItem_Impl::SetText(const char* pszText, const char* pszSortText)
 {
-    m_pListItem->setText(CGUI_Impl::GetUTFString(pszText), pszSortText);
+    m_pListItem->setText(CGUI_Impl::GetUTFString(pszText));
 }
 
 void CGUIListItem_Impl::SetData(const char* pszData)
@@ -70,18 +72,18 @@ void CGUIListItem_Impl::SetData(const char* pszData)
         m_pData = (void*)m_strData.c_str();
     }
     else
-    {
-        m_pData = NULL;
-    }
+        m_pData = nullptr;
 }
 
 void CGUIListItem_Impl::SetImage(CGUIStaticImage* pImage)
 {
+    /*
     if (ItemType == ImageItem)
     {
         CGUIStaticImage_Impl* pImageImpl = (CGUIStaticImage_Impl*)pImage;
-        reinterpret_cast<CEGUI::ListboxImageItem*>(m_pListItem)->setImage(pImageImpl ? pImageImpl->GetDirectImage() : NULL);
+        reinterpret_cast<CEGUI::ListboxImageItem*>(m_pListItem)->setImage(pImageImpl ? pImageImpl->GetDirectImage() : nullptr);
     }
+    */
 }
 
 std::string CGUIListItem_Impl::GetText() const
@@ -109,34 +111,38 @@ void CGUIListItem_Impl::SetColor(unsigned char ucRed, unsigned char ucGreen, uns
     if (ItemType == TextItem)
     {
         reinterpret_cast<CEGUI::ListboxTextItem*>(m_pListItem)
-            ->setTextColours(CEGUI::colour((float)ucRed / 255.0f, (float)ucGreen / 255.0f, (float)ucBlue / 255.0f, (float)ucAlpha / 255.0f));
+            ->setTextColours(CEGUI::Colour((float)ucRed / 255.0f, (float)ucGreen / 255.0f, (float)ucBlue / 255.0f, (float)ucAlpha / 255.0f));
     }
+    /*
     else if (ItemType == NumberItem)
     {
         reinterpret_cast<CEGUI::ListboxNumberItem*>(m_pListItem)
-            ->setTextColours(CEGUI::colour((float)ucRed / 255.0f, (float)ucGreen / 255.0f, (float)ucBlue / 255.0f, (float)ucAlpha / 255.0f));
+            ->setTextColours(CEGUI::Colour((float)ucRed / 255.0f, (float)ucGreen / 255.0f, (float)ucBlue / 255.0f, (float)ucAlpha / 255.0f));
     }
+    */
 }
 
 bool CGUIListItem_Impl::GetColor(unsigned char& ucRed, unsigned char& ucGreen, unsigned char& ucBlue, unsigned char& ucAlpha)
 {
     if (ItemType == TextItem)
     {
-        CEGUI::colour color = reinterpret_cast<CEGUI::ListboxTextItem*>(m_pListItem)->getTextColours().d_top_left;
+        CEGUI::Colour color = reinterpret_cast<CEGUI::ListboxTextItem*>(m_pListItem)->getTextColours().d_top_left;
         ucRed = static_cast<unsigned char>(color.getRed() * 255);
         ucGreen = static_cast<unsigned char>(color.getGreen() * 255);
         ucBlue = static_cast<unsigned char>(color.getBlue() * 255);
         ucAlpha = static_cast<unsigned char>(color.getAlpha() * 255);
         return true;
     }
+    /*
     else if (ItemType == NumberItem)
     {
-        CEGUI::colour color = reinterpret_cast<CEGUI::ListboxNumberItem*>(m_pListItem)->getTextColours().d_top_left;
+        CEGUI::Colour color = reinterpret_cast<CEGUI::ListboxNumberItem*>(m_pListItem)->getTextColours().d_top_left;
         ucRed = static_cast<unsigned char>(color.getRed() * 255);
         ucGreen = static_cast<unsigned char>(color.getGreen() * 255);
         ucBlue = static_cast<unsigned char>(color.getBlue() * 255);
         ucAlpha = static_cast<unsigned char>(color.getAlpha() * 255);
         return true;
     }
+    */
     return false;
 }

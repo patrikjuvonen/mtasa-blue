@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- *  PROJECT:     Multi Theft Auto v1.0
+ *  PROJECT:     Multi Theft Auto
  *  LICENSE:     See LICENSE in the top level directory
  *  FILE:        gui/CGUITabList.cpp
  *  PURPOSE:     Tab-able elements list class
@@ -15,36 +15,28 @@ void CGUITabList::SelectNext(CGUITabListItem* pBase)
 {
     // Loop through all elements which can be activated
     bool bFound = false;
-    for (CGUITabIterator iter = m_Items.begin(); iter != m_Items.end(); ++iter)
+    for (auto iter : m_Items)
     {
-        CGUITabListItem* pItem = *iter;
-
-        if (pItem == pBase)
-        {
+        if (iter == pBase)
             bFound = true;
-        }
-        else if (bFound && pItem->IsEnabled())
+        else if (bFound && iter->IsEnabled())
         {
             // we found an element that wants to get selected
-            pItem->ActivateOnTab();
+            iter->ActivateOnTab();
             return;
         }
     }
 
     // Contine to search an element from the beginning
-    for (CGUITabIterator iter = m_Items.begin(); iter != m_Items.end(); ++iter)
+    for (auto iter : m_Items)
     {
-        CGUITabListItem* pItem = *iter;
-
-        if (pItem == pBase)
-        {
+        if (iter == pBase)
             // just where we started, so we don't have to do anything
             return;
-        }
-        else if (pItem->IsEnabled())
+        else if (iter->IsEnabled())
         {
             // finally found something different than the current element
-            pItem->ActivateOnTab();
+            iter->ActivateOnTab();
             return;
         }
     }

@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- *  PROJECT:     Multi Theft Auto v1.0
+ *  PROJECT:     Multi Theft Auto
  *  LICENSE:     See LICENSE in the top level directory
  *  FILE:        gui/CGUIStaticImage_Impl.h
  *  PURPOSE:     Static image widget class
@@ -38,12 +38,11 @@ public:
     eCGUIType GetType() { return CGUI_STATICIMAGE; }
 
 private:
-    class CGUI_Impl*        m_pGUI;
-    bool                    m_bCreatedTexture;
-    CGUITexture_Impl*       m_pTexture;
-    CEGUI::ImagesetManager* m_pImagesetManager;
-    CEGUI::Imageset*        m_pImageset;
-    const CEGUI::Image*     m_pImage;
+    class CGUI_Impl*     m_pGUI;
+    bool                 m_bCreatedTexture;
+    CGUITexture_Impl*    m_pTexture;
+    CEGUI::ImageManager* m_pImageManager;
+    const CEGUI::Image*  m_pImage;
 
     #include "CGUIElement_Inc.h"
 };

@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- *  PROJECT:     Multi Theft Auto v1.0
+ *  PROJECT:     Multi Theft Auto
  *  LICENSE:     See LICENSE in the top level directory
  *  FILE:        gui/CGUITabPanel_Impl.cpp
  *  PURPOSE:     Tab panel widget class
@@ -27,8 +27,8 @@ CGUITabPanel_Impl::CGUITabPanel_Impl(CGUI_Impl* pGUI, CGUIElement* pParent)
     // Create the window and set default settings
     m_pWindow = pGUI->GetWindowManager()->createWindow(CGUITABPANEL_NAME, szUnique);
     m_pWindow->setDestroyedByParent(false);
-    m_pWindow->setRect(CEGUI::Relative, CEGUI::Rect(0.9f, 0.9f, 0.9f, 0.9f));
-    reinterpret_cast<CEGUI::TabControl*>(m_pWindow)->setAbsoluteTabTextPadding(10.0f);
+    m_pWindow->setArea(CEGUI::URect(cegui_reldim(0.9f), cegui_reldim(0.9f), cegui_reldim(0.9f), cegui_reldim(0.9f)));
+    reinterpret_cast<CEGUI::TabControl*>(m_pWindow)->setTabTextPadding(cegui_absdim(10.0f));
 
     // Store the pointer to this CGUI element in the CEGUI element
     m_pWindow->setUserData(reinterpret_cast<void*>(this));

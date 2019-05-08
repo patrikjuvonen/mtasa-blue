@@ -1,6 +1,6 @@
 /*****************************************************************************
  *
- *  PROJECT:     Multi Theft Auto v1.0
+ *  PROJECT:     Multi Theft Auto
  *  LICENSE:     See LICENSE in the top level directory
  *  FILE:        gui/CGUIFont_Impl.cpp
  *  PURPOSE:     Font type class
@@ -15,12 +15,12 @@ CGUIFont_Impl::CGUIFont_Impl(CGUI_Impl* pGUI, const char* szFontName, const char
 {
     // Store the fontmanager and create a font with the given attributes
     m_pFontManager = pGUI->GetFontManager();
-    m_pFont = NULL;
+    m_pFont = nullptr;
     while (!m_pFont)
     {
         try
         {
-            m_pFont = m_pFontManager->createFont(szFontName, szFontFile, uSize, uFlags, bAutoScale, 1024, 768);
+            m_pFont = &m_pFontManager->createFreeTypeFont(szFontName, uSize, true, szFontFile, "", CEGUI::ASM_Both, CEGUI::Sizef(1024.0f, 768.0f));
         }
         catch (CEGUI::RendererException)
         {
@@ -31,58 +31,63 @@ CGUIFont_Impl::CGUIFont_Impl(CGUI_Impl* pGUI, const char* szFontName, const char
     }
 
     // Define our glyphs
-    m_pFont->setInitialFontGlyphs(" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~");
+    // m_pFont->setInitialFontGlyphs(" !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~");
 
     // Set default attributes
     SetNativeResolution(1024, 768);
     SetAutoScalingEnabled(bAutoScale);
+
+    m_pGeometryBuffer = &CEGUI::System::getSingleton().getRenderer()->createGeometryBuffer();
 }
 
 CGUIFont_Impl::~CGUIFont_Impl()
 {
-    m_pFontManager->destroyFont(m_pFont);
+    CEGUI::System::getSingleton().getRenderer()->destroyGeometryBuffer(*m_pGeometryBuffer);
+    m_pFontManager->destroy(*m_pFont);
 }
 
 void CGUIFont_Impl::SetAntiAliasingEnabled(bool bAntialiased)
 {
-    m_pFont->setAntiAliased(bAntialiased);
+    // m_pFont->setAntiAliased(bAntialiased);
 }
 
 void CGUIFont_Impl::DrawTextString(const char* szText, CRect2D DrawArea, float fZ, CRect2D ClipRect, unsigned long ulFormat, unsigned long ulColor,
                                    float fScaleX, float fScaleY)
 {
-    CEGUI::TextFormatting fmt;
+    CEGUI::HorizontalTextFormatting fmt;
 
     if (ulFormat == DT_CENTER)
-        fmt = CEGUI::Centred;
+        fmt = CEGUI::HorizontalTextFormatting::HTF_CENTRE_ALIGNED;
     else if (ulFormat == DT_RIGHT)
-        fmt = CEGUI::RightAligned;
+        fmt = CEGUI::HorizontalTextFormatting::HTF_RIGHT_ALIGNED;
     else
-        fmt = CEGUI::LeftAligned;
+        fmt = CEGUI::HorizontalTextFormatting::HTF_LEFT_ALIGNED;
 
-    m_pFont->drawText(szText ? CGUI_Impl::GetUTFString(szText) : CEGUI::String(), CEGUI::Rect(DrawArea.fX1, DrawArea.fY1, DrawArea.fX2, DrawArea.fY2), fZ,
-                      CEGUI::Rect(ClipRect.fX1, ClipRect.fY1, ClipRect.fX2, ClipRect.fY2), fmt, CEGUI::ColourRect(CEGUI::colour((CEGUI::argb_t)ulColor)),
-                      fScaleX, fScaleY);
+    // CEGUI::Rectf clipRect(ClipRect.fX1, ClipRect.fY1, ClipRect.fX2, ClipRect.fY2);
+
+    m_pFont->drawText(*m_pGeometryBuffer, szText ? CGUI_Impl::GetUTFString(szText) : CEGUI::String(), CEGUI::Vector2f(DrawArea.fX1, DrawArea.fY1), 0,
+                      CEGUI::ColourRect(CEGUI::Colour((CEGUI::argb_t)ulColor)), 0, fScaleX, fScaleY);
 }
 
 bool CGUIFont_Impl::IsAntiAliasingEnabled()
 {
-    return m_pFont->isAntiAliased();
+    // return m_pFont->isAntiAliased();
+    return true;
 }
 
 void CGUIFont_Impl::SetAutoScalingEnabled(bool bAutoScaled)
 {
-    m_pFont->setAutoScalingEnabled(bAutoScaled);
+    m_pFont->setAutoScaled(bAutoScaled ? CEGUI::ASM_Both : CEGUI::ASM_Disabled);
 }
 
 bool CGUIFont_Impl::IsAutoScalingEnabled()
 {
-    return m_pFont->isAutoScaled();
+    return m_pFont->getAutoScaled() != CEGUI::ASM_Disabled;
 }
 
 void CGUIFont_Impl::SetNativeResolution(int iX, int iY)
 {
-    m_pFont->setNativeResolution(CEGUI::Size(static_cast<float>(iX), static_cast<float>(iY)));
+    m_pFont->setNativeResolution(CEGUI::Size<float>(static_cast<float>(iX), static_cast<float>(iY)));
 }
 
 float CGUIFont_Impl::GetCharacterWidth(int iChar, float fScale)
