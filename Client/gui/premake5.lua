@@ -4,44 +4,43 @@ project "GUI"
 	targetname "cgui"
 	targetdir(buildpath("mta"))
 
-	cppdialect "C++14"
-	
 	filter "system:windows"
 		includedirs { "../../vendor/sparsehash/src/windows" }
-	
+
 	filter {}
-		includedirs { 
+		includedirs {
 			"../sdk",
 			"../../vendor/cegui/include",
 			"../../vendor/sparsehash/src"
 		}
-	 
+
 	pchheader "StdInc.h"
 	pchsource "StdInc.cpp"
-	
+
+	defines {
+		"_SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING"
+	}
+
 	links {
 		"CEGUI",
 		"d3dx9.lib",
 		"dxerr.lib"
 	}
-	
-	vpaths { 
+
+	vpaths {
 		["Headers/*"] = "**.h",
 		["Sources/*"] = "**.cpp",
 		["*"] = "premake5.lua"
 	}
-	
+
 	files {
 		"premake5.lua",
 		"*.h",
 		"*.cpp"
 	}
 	
-	filter {"system:windows", "toolset:*_xp*"}
-		links { "Psapi.lib" }
-	
 	filter "architecture:x64"
-		flags { "ExcludeFromBuild" } 
-		
+		flags { "ExcludeFromBuild" }
+
 	filter "system:not windows"
-		flags { "ExcludeFromBuild" } 
+		flags { "ExcludeFromBuild" }

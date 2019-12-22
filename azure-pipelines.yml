@@ -4,6 +4,15 @@ resources:
     image: sbx320/mtasa-blue-azure:latest
 
 jobs:
+- job: macOS
+  pool:
+    vmImage: 'macOS-10.14'
+  steps:
+  - bash: brew install mysql
+    displayName: 'Install MySQL'
+  - script: ./linux-build.sh
+    displayName: 'Run Build'
+
 - job: linux
   pool:
     vmImage: 'Ubuntu 16.04'
@@ -11,10 +20,10 @@ jobs:
   steps:
   - script: ./linux-build.sh
     displayName: 'Run Build'
-    
+
 - job: windows
   pool:
-    vmImage: 'VS2017-Win2016'
+    vmImage: 'windows-2019'
   variables:
     solution: 'Build/MTASA.sln'
     buildConfiguration: 'Release'
@@ -34,4 +43,3 @@ jobs:
     inputs:
       solution: '$(solution)'
       configuration: '$(buildConfiguration)'
- 
