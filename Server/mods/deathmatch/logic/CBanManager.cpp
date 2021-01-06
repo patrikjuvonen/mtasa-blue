@@ -516,7 +516,7 @@ std::string CBanManager::SafeGetValue(CXMLNode* pNode, const char* szKey)
     return std::string();
 }
 
-bool CBanManager::IsValidIP(const char* szIP)
+bool CBanManager::IsValidIP(const char* szIP) const
 {
     char strIP[256] = {'\0'};
     strncpy(strIP, szIP, 255);
@@ -536,7 +536,7 @@ bool CBanManager::IsValidIP(const char* szIP)
     return false;
 }
 
-bool CBanManager::IsValidIPPart(const char* szIP)
+bool CBanManager::IsValidIPPart(const char* szIP) const
 {
     if (IsNumericString(szIP))
     {
@@ -548,4 +548,42 @@ bool CBanManager::IsValidIPPart(const char* szIP)
         return true;
 
     return false;
+}
+
+bool CBanManager::IsIPInRange(const char* szIP, const char* szIPRange) const
+{
+    if (!IsValidIP(szIP))
+        return false;
+
+    std::string strIP(szIP);
+    char*       szTmp = const_cast<char*>(strIP.c_str());
+
+    unsigned int uiIP = 0;
+    char*        szOctet;
+
+    for (int i = 0; i < 4; i++)
+    {
+        szOctet = strtok(i == 0 ? szTmp : nullptr, ".");
+        uiIP <<= 8;
+        uiIP += atoi(szOctet);
+    }
+
+    std::string strIPRange(szIPRange);
+    szTmp = const_cast<char*>(strIPRange.c_str());
+
+    char* szNetwork = strtok(szTmp, "/");
+    if (!IsValidIP(szNetwork))
+        return false;
+
+    int          iMask = atoi(strtok(nullptr, "/"));
+    unsigned int uiNetwork = 0;
+
+    for (int i = 0; i < 4; i++)
+    {
+        szOctet = strtok(i == 0 ? szNetwork : nullptr, ".");
+        uiNetwork <<= 8;
+        uiNetwork += atoi(szOctet);
+    }
+
+    return (uiIP & (-1 << (32 - iMask))) == uiNetwork;
 }

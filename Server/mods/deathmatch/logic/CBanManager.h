@@ -53,7 +53,8 @@ public:
     void        SafeSetValue(CXMLNode* pNode, const char* szKey, const std::string& strValue);
     void        SafeSetValue(CXMLNode* pNode, const char* szKey, unsigned int);
     std::string SafeGetValue(CXMLNode* pNode, const char* szKey);
-    bool        IsValidIP(const char* szIP);
+    bool        IsValidIP(const char* szIP) const;
+    bool        IsIPInRange(const char* szIP, const char* szSubnet) const;
     static void SetBansModified() { ms_bSaveRequired = true; }
 
     list<CBan*>::const_iterator IterBegin() { return m_BanManager.begin(); };
@@ -67,7 +68,7 @@ private:
 
     time_t m_tUpdate;
 
-    bool        IsValidIPPart(const char* szIP);
+    bool        IsValidIPPart(const char* szIP) const;
     bool        m_bAllowSave;
     static bool ms_bSaveRequired;
 };
